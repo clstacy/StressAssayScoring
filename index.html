@@ -41,6 +41,7 @@
       box-sizing: border-box;
       background-color: #f9f9f9;
       overflow-y: auto;
+      flex-shrink: 0; /* Prevents the sidebar from shrinking */
     }
     #mainContent {
       flex-grow: 1;
@@ -127,8 +128,8 @@
 <body>
 
   <div id="tabs">
-    <button class="tablink active" onclick="openTab(event, 'ScoringApp')">Stress Assay Scoring App</button>
     <button class="tablink" onclick="openTab(event, 'ImageCropper')">Image Grid Cropper</button>
+    <button class="tablink active" onclick="openTab(event, 'ScoringApp')">Stress Assay Scoring App</button>
   </div>
 
   <div id="ScoringApp" class="tabContent" style="display: block;">
