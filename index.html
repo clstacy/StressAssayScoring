@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Image Scoring App for Scientific Use</title>
+  <title>Enhanced Image Scoring App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -50,17 +50,19 @@
   </style>
 </head>
 <body>
-  <h1>Image Scoring App for Scientific Use</h1>
+  <h1>Enhanced Image Scoring App</h1>
 
   <div id="instructions">
     <h2>Instructions</h2>
     <ol>
       <li>Upload a ZIP file containing your images.</li>
       <li>Enter custom scores and click "Set Scores" (optional).</li>
+      <li>Set a default score if desired.</li>
       <li>Set the replication factor if needed (e.g., 1.2 for 20% replication).</li>
+      <li>Choose whether to enable pagination and specify images per page.</li>
       <li>Click "Load Images" to begin.</li>
-      <li>Select a score and click on images to assign scores.</li>
-      <li>Use pagination controls to navigate through images.</li>
+      <li>Select a score and click on images to assign or change scores.</li>
+      <li>Use pagination controls to navigate through images (if enabled).</li>
       <li>Once finished, click "Download Scores" to export the data.</li>
     </ol>
   </div>
@@ -73,9 +75,23 @@
   <button id="setScores">Set Scores</button>
   <br><br>
 
+  <label for="defaultScore">Default Score (optional):</label>
+  <input type="text" id="defaultScore" placeholder="Enter default score">
+  <br><br>
+
   <label for="replicationFactor">Replication Factor (e.g., 1.2 for 20% replication):</label>
   <input type="number" id="replicationFactor" value="1.0" min="1.0" step="0.1">
   <br><br>
+
+  <input type="checkbox" id="enablePagination">
+  <label for="enablePagination">Enable Pagination</label>
+  <br><br>
+
+  <div id="paginationSettings" style="display: none;">
+    <label for="imagesPerPage">Images Per Page:</label>
+    <input type="number" id="imagesPerPage" value="20" min="1" step="1">
+    <br><br>
+  </div>
 
   <button id="loadImages">Load Images</button>
   <br><br>
@@ -85,7 +101,7 @@
   <button id="downloadScores">Download Scores</button>
   <br><br>
 
-  <div id="paginationControls">
+  <div id="paginationControls" style="display: none;">
     <button id="prevPage">Previous</button>
     <span id="pageInfo"></span>
     <button id="nextPage">Next</button>
@@ -106,7 +122,9 @@
     let scores = {};
     let scoreLabels = {};
     let currentPage = 1;
-    const imagesPerPage = 20;
+    let imagesPerPage = 20;
+    let paginationEnabled = false;
+    let scoreColors = {}; // To store colors for each score
 
     // Handle zip file upload
     document.getElementById('zipInput').addEventListener('change', function(event) {
@@ -123,8 +141,19 @@
 
       if (customScoresArray.length > 0) {
         populateScoreSelector(customScoresArray);
+        assignScoreColors(customScoresArray);
       } else {
         alert('Please enter valid scores.');
+      }
+    });
+
+    // Show or hide pagination settings
+    document.getElementById('enablePagination').addEventListener('change', function() {
+      const paginationSettings = document.getElementById('paginationSettings');
+      if (this.checked) {
+        paginationSettings.style.display = 'block';
+      } else {
+        paginationSettings.style.display = 'none';
       }
     });
 
@@ -175,8 +204,25 @@
       // Shuffle images
       shuffleArray(images);
 
-      // Reset pagination
+      // Pagination settings
+      paginationEnabled = document.getElementById('enablePagination').checked;
+      imagesPerPage = parseInt(document.getElementById('imagesPerPage').value) || 20;
       currentPage = 1;
+
+      // Assign default score if set
+      const defaultScore = document.getElementById('defaultScore').value;
+      if (defaultScore !== '' && scoreLabels[defaultScore]) {
+        images.forEach(img => {
+          const timestamp = new Date().toISOString();
+          scores[img.name] = {
+            score: defaultScore,
+            timestamp: timestamp,
+            isReplicate: img.isReplicate || false,
+            originalName: img.originalName,
+            anonymousId: img.anonymousId
+          };
+        });
+      }
 
       // Display images
       displayImages();
@@ -199,6 +245,15 @@
       });
 
       return uniqueScores;
+    }
+
+    // Function to assign colors to scores
+    function assignScoreColors(scoresArray) {
+      const colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'pink', 'gray', 'teal', 'magenta'];
+      scoreColors = {};
+      scoresArray.forEach((score, index) => {
+        scoreColors[score] = colors[index % colors.length];
+      });
     }
 
     // Function to populate the score selector
@@ -254,9 +309,13 @@
     function displayImages() {
       const grid = document.getElementById('imageGrid');
       grid.innerHTML = '';
-      const startIndex = (currentPage - 1) * imagesPerPage;
-      const endIndex = startIndex + imagesPerPage;
-      const imagesToDisplay = images.slice(startIndex, endIndex);
+
+      let imagesToDisplay = images;
+      if (paginationEnabled) {
+        const startIndex = (currentPage - 1) * imagesPerPage;
+        const endIndex = startIndex + imagesPerPage;
+        imagesToDisplay = images.slice(startIndex, endIndex);
+      }
 
       imagesToDisplay.forEach((img, index) => {
         const imgContainer = document.createElement('div');
@@ -264,16 +323,22 @@
 
         const imgElement = document.createElement('img');
         imgElement.src = img.data;
-        imgElement.dataset.index = startIndex + index;
+        imgElement.dataset.index = index;
         imgElement.addEventListener('click', () => {
+          let score;
+          let timestamp = new Date().toISOString();
+
           const scoreSelector = document.getElementById('scoreSelector');
-          if (scoreSelector.value === '') {
+          if (scoreSelector.value !== '') {
+            score = scoreSelector.value;
+          } else if (scores[img.name]) {
+            score = scores[img.name].score;
+          } else {
             alert('Please select a score.');
             return;
           }
-          const score = scoreSelector.value;
+
           const scoreText = scoreLabels[score];
-          const timestamp = new Date().toISOString();
           scores[img.name] = {
             score: score,
             timestamp: timestamp,
@@ -281,7 +346,7 @@
             originalName: img.originalName,
             anonymousId: img.anonymousId
           };
-          imgElement.style.borderColor = 'red';
+          imgElement.style.borderColor = scoreColors[score] || 'red';
 
           // Show score overlay
           if (!imgContainer.querySelector('.scoreOverlay')) {
@@ -296,10 +361,11 @@
 
         // If image is already scored, show the score
         if (scores[img.name]) {
-          imgElement.style.borderColor = 'red';
+          const assignedScore = scores[img.name].score;
+          imgElement.style.borderColor = scoreColors[assignedScore] || 'red';
           const overlay = document.createElement('div');
           overlay.classList.add('scoreOverlay');
-          overlay.textContent = 'Score: ' + scoreLabels[scores[img.name].score];
+          overlay.textContent = 'Score: ' + scoreLabels[assignedScore];
           imgContainer.appendChild(overlay);
         }
 
@@ -312,11 +378,17 @@
 
     // Update pagination controls
     function updatePaginationControls() {
-      const totalPages = Math.ceil(images.length / imagesPerPage);
-      document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+      const paginationControls = document.getElementById('paginationControls');
+      if (paginationEnabled) {
+        paginationControls.style.display = 'block';
+        const totalPages = Math.ceil(images.length / imagesPerPage);
+        document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
 
-      document.getElementById('prevPage').disabled = currentPage === 1;
-      document.getElementById('nextPage').disabled = currentPage === totalPages;
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages;
+      } else {
+        paginationControls.style.display = 'none';
+      }
     }
 
     // Pagination button event listeners
@@ -357,15 +429,16 @@
       }
 
       // Prepare CSV content
-      let csvContent = "Image ID,Score,Timestamp,Is Replicate,Original Image ID\n";
+      let csvContent = "Image ID,File Name,Score,Timestamp,Is Replicate,Original Image ID\n";
       images.forEach(img => {
         const data = scores[img.name];
         const score = data ? getScoreLabel(data.score) : '';
         const timestamp = data ? data.timestamp : '';
         const isReplicate = data ? data.isReplicate : false;
         const originalAnonymousId = data ? images.find(image => image.name === data.originalName).anonymousId : img.anonymousId;
+        const fileName = img.name;
 
-        csvContent += `"${img.anonymousId}","${score}","${timestamp}","${isReplicate}","${originalAnonymousId}"\n`;
+        csvContent += `"${img.anonymousId}","${fileName}","${score}","${timestamp}","${isReplicate}","${originalAnonymousId}"\n`;
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
