@@ -78,13 +78,13 @@
 <body>
   <div id="container">
     <div id="sidebar">
-      <h1>Enhanced Image Scoring App</h1>
+      <h1>Stress Assay Scoring App</h1>
 
       <div id="instructions">
         <h2>Instructions</h2>
         <ol>
           <li>Upload a ZIP file containing your images.</li>
-          <li>Set custom scores if desired, or use default scores (0,1,2,3,4).</li>
+          <li>Set custom scores if desired, or use default scores by clicking "Set Scores" without entering any scores.</li>
           <li>Set the replication factor if needed (e.g., 1.2 for 20% replication).</li>
           <li>Choose whether to enable pagination and specify images per page.</li>
           <li>Click "Load Images" to begin.</li>
@@ -138,8 +138,8 @@
     </div>
   </div>
 
-  <!-- Include JSZip and FileSaver.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <!-- Include fflate and FileSaver.js -->
+  <script src="https://cdn.jsdelivr.net/npm/fflate@0.7.3/umd/index.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <!-- Main JavaScript code -->
@@ -155,29 +155,47 @@
 
     // On page load, set default scores
     document.addEventListener('DOMContentLoaded', () => {
+      setDefaultScores();
+    });
+
+    // Function to set default scores
+    function setDefaultScores() {
       const defaultScoresArray = ['0', '1', '2', '3', '4'];
+      scoreLabels = {
+        '0': 'Poor',
+        '1': 'Fair',
+        '2': 'Good',
+        '3': 'Very Good',
+        '4': 'Excellent'
+      };
       assignScoreColors(defaultScoresArray);
       populateScoreSelector(defaultScoresArray);
-    });
+    }
 
     // Handle zip file upload
     document.getElementById('zipInput').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file) {
-        document.getElementById('loadingMessage').textContent = 'Unzipping and processing images...';
+        document.getElementById('loadingMessage').textContent = 'Ready to load images.';
       }
     });
 
     // Event listener for setting custom scores
     document.getElementById('setScores').addEventListener('click', () => {
-      const customScoresInput = document.getElementById('customScores').value;
-      const customScoresArray = parseCustomScores(customScoresInput);
+      const customScoresInput = document.getElementById('customScores').value.trim();
+      let customScoresArray;
 
-      if (customScoresArray.length > 0) {
+      if (customScoresInput === '') {
+        // Use default scores
+        setDefaultScores();
+      } else {
+        customScoresArray = parseCustomScores(customScoresInput);
+        if (customScoresArray.length === 0) {
+          alert('Please enter valid scores.');
+          return;
+        }
         assignScoreColors(customScoresArray);
         populateScoreSelector(customScoresArray);
-      } else {
-        alert('Please enter valid scores.');
       }
     });
 
@@ -192,7 +210,7 @@
     });
 
     // Event listener for loading images
-    document.getElementById('loadImages').addEventListener('click', async () => {
+    document.getElementById('loadImages').addEventListener('click', () => {
       const fileInput = document.getElementById('zipInput');
       const file = fileInput.files[0];
       if (!file) {
@@ -202,19 +220,28 @@
 
       document.getElementById('loadingMessage').textContent = 'Unzipping and processing images...';
 
-      const zip = await JSZip.loadAsync(file);
       images = []; // Reset images array
       scores = {}; // Reset scores
 
-      for (const relativePath in zip.files) {
-        const zipEntry = zip.files[relativePath];
-        if (!zipEntry.dir && /\.(png|jpg|jpeg)$/i.test(zipEntry.name)) {
-          const imgData = await zipEntry.async('base64');
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const unzippedFiles = fflate.unzipSync(data);
+        processUnzippedFiles(unzippedFiles);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function processUnzippedFiles(files) {
+      for (const [filename, fileData] of Object.entries(files)) {
+        if (/\.(png|jpg|jpeg)$/i.test(filename)) {
+          const blob = new Blob([fileData], { type: 'image/jpeg' });
+          const imgUrl = URL.createObjectURL(blob);
           images.push({
-            name: zipEntry.name,
-            data: 'data:image/jpeg;base64,' + imgData,
+            name: filename,
+            data: imgUrl,
             isReplicate: false,
-            originalName: zipEntry.name,
+            originalName: filename,
             rotation: getRandomRotation()
           });
         }
@@ -243,7 +270,7 @@
       displayImages();
 
       document.getElementById('loadingMessage').textContent = '';
-    });
+    }
 
     // Function to parse custom scores input
     function parseCustomScores(input) {
@@ -302,7 +329,6 @@
         const replicatedImage = {
           ...originalImage,
           isReplicate: true,
-          originalName: originalImage.name,
           name: originalImage.name + '_replicate_' + (i + 1),
           rotation: getRandomRotation()
         };
@@ -314,10 +340,9 @@
       return imagesArray.concat(replicatedImages);
     }
 
-    // Function to get a random rotation angle
+    // Function to get a random rotation angle (0 or 180 degrees)
     function getRandomRotation() {
-      const rotations = [0, 90, 180, 270];
-      return rotations[Math.floor(Math.random() * rotations.length)];
+      return Math.random() < 0.5 ? 0 : 180;
     }
 
     // Function to shuffle an array
@@ -471,8 +496,8 @@
         const data = scores[img.name];
         const score = data ? getScoreLabel(data.score) : '';
         const timestamp = data ? data.timestamp : '';
-        const isReplicate = data ? data.isReplicate : false;
-        const originalFileName = img.isReplicate ? img.originalName : '';
+        const isReplicate = img.isReplicate;
+        const originalFileName = img.originalName;
         const fileName = img.name;
 
         csvContent += `"${fileName}","${score}","${timestamp}","${isReplicate}","${originalFileName}"\n`;
