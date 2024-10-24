@@ -101,7 +101,7 @@
         <ol>
           <li>Upload a folder containing your images.</li>
           <li>Set custom scores if desired, or use default scores by clicking "Set Scores" without entering any scores.</li>
-          <li>Set the replication factor if needed (e.g., 2 for each image to have one replicate).</li>
+          <li>Set the replication factor (e.g., 1.5 for 50% additional replicates).</li>
           <li>Click "Load Images" to begin.</li>
           <li>Select a score and click on images to assign or change scores.</li>
           <li>Use pagination controls to navigate through images.</li>
@@ -122,8 +122,8 @@
       <button id="setScores">Set Scores</button>
       <br><br>
 
-      <label for="replicationFactor">Replication Factor (e.g., 2 for one replicate per image):</label>
-      <input type="number" id="replicationFactor" value="1" min="1" step="1">
+      <label for="replicationFactor">Replication Factor (e.g., 1.5):</label>
+      <input type="number" id="replicationFactor" value="1" min="1" step="0.1">
       <br><br>
 
       <button id="loadImages">Load Images</button>
@@ -252,13 +252,13 @@
         return;
       }
 
-      replicationFactor = parseInt(document.getElementById('replicationFactor').value) || 1;
+      replicationFactor = parseFloat(document.getElementById('replicationFactor').value) || 1;
       images = replicateImages(images, replicationFactor);
 
       shuffleArray(images);
 
       currentPage = 1;
-      totalPages = replicationFactor;
+      totalPages = Math.ceil(replicationFactor);
 
       sortImages();
       displayImages();
@@ -329,7 +329,11 @@
 
     function replicateImages(imagesArray, replicationFactor) {
       const replicatedImages = [];
-      for (let i = 1; i <= replicationFactor; i++) {
+      const totalReps = Math.floor(replicationFactor);
+      const extraRepFraction = replicationFactor - totalReps;
+
+      // Replicate images for the integer part of replication factor
+      for (let i = 1; i <= totalReps; i++) {
         imagesArray.forEach(image => {
           const replicatedImage = {
             ...image,
@@ -341,6 +345,29 @@
           replicatedImages.push(replicatedImage);
         });
       }
+
+      // Handle fractional replication
+      if (extraRepFraction > 0) {
+        const additionalReps = [];
+        const numExtraReps = Math.round(imagesArray.length * extraRepFraction);
+        const shuffledImages = [...imagesArray];
+        shuffleArray(shuffledImages);
+        const selectedImages = shuffledImages.slice(0, numExtraReps);
+
+        selectedImages.forEach(image => {
+          const replicatedImage = {
+            ...image,
+            isReplicate: true,
+            name: `${image.originalName}_replicate_${totalReps}`,
+            rotation: getRandomRotation(),
+            replicateNumber: totalReps + 1
+          };
+          replicatedImages.push(replicatedImage);
+        });
+
+        totalPages += 1;
+      }
+
       return replicatedImages;
     }
 
@@ -363,7 +390,7 @@
         if (aScored !== bScored) {
           return aScored - bScored; // Unscored images first
         } else {
-          return a.originalName.localeCompare(b.originalName);
+          return 0; // Keep current order
         }
       });
     }
@@ -393,6 +420,7 @@
           const timestamp = new Date().toISOString();
           scores[img.name] = {
             score: score,
+            scoreDescription: scoreText,
             timestamp: timestamp,
             isReplicate: img.isReplicate || false,
             originalName: img.originalName
@@ -466,21 +494,27 @@
         if (!proceed) return;
       }
 
+      const unscoredReplicates = images.filter(img => img.isReplicate && !scores[img.name]);
+      if (unscoredReplicates.length > 0) {
+        alert(`Warning: Not all replicates have been scored.`);
+      }
+
       const inconsistencies = checkConsistency();
 
       if (inconsistencies.length > 0) {
         alert(`There are ${inconsistencies.length} inconsistencies in replicated scores.`);
       }
 
-      let csvContent = "Scorer Name,File Name,Score,Timestamp,Replicate #,Original File Name\n";
+      let csvContent = "Scorer Name,File Name,Numeric Score,Score Description,Timestamp,Replicate #,Original File Name\n";
       images.sort((a, b) => a.originalName.localeCompare(b.originalName));
       images.forEach(img => {
         const data = scores[img.name];
-        const score = data ? getScoreLabel(data.score) : '';
+        const numericScore = data ? data.score : '';
+        const scoreDescription = data ? data.scoreDescription : '';
         const timestamp = data ? data.timestamp : '';
         const replicateNum = img.replicateNumber;
         const originalFileName = img.originalName;
-        csvContent += `"${scorerName}","${img.name}","${score}","${timestamp}","${replicateNum}","${originalFileName}"\n`;
+        csvContent += `"${scorerName}","${img.name}","${numericScore}","${scoreDescription}","${timestamp}","${replicateNum}","${originalFileName}"\n`;
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
