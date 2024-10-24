@@ -41,7 +41,7 @@
       box-sizing: border-box;
       background-color: #f9f9f9;
       overflow-y: auto;
-      flex-shrink: 0; /* Prevents the sidebar from shrinking */
+      flex-shrink: 0;
     }
     #mainContent {
       flex-grow: 1;
@@ -141,12 +141,12 @@
           <h2>Instructions</h2>
           <ol>
             <li>Upload a folder containing your images.</li>
-            <li>Set custom scores if desired, or use default scores by clicking "Set Scores" without entering any scores.</li>
+            <li>Set custom scores if desired, or use default scoring system.</li>
             <li>Set the replication factor (e.g., 1.5 for 50% additional replicates).</li>
             <li>Click "Load Images" to begin.</li>
             <li>Select a score and click on images to assign or change scores.</li>
-            <li>Use pagination controls to navigate through images.</li>
-            <li>Once finished, click "Download Scores" to export the data.</li>
+            <li>Go to next page to score replicats.</li>
+            <li>When finished, click "Download Scores" to export the data.</li>
           </ol>
         </div>
         <label for="fileInput">Upload Images (Folder or Files):</label>
@@ -160,7 +160,7 @@
         <button id="setScores">Set Scores</button>
         <br><br>
         <label for="replicationFactor">Replication Factor (e.g., 1.5):</label>
-        <input type="number" id="replicationFactor" value="1" min="1" step="0.1">
+        <input type="number" id="replicationFactor" value="2" min="1" step="0.1">
         <br><br>
         <button id="loadImages">Load Images</button>
         <br><br>
@@ -185,7 +185,7 @@
 
   <div id="ImageCropper" class="tabContent">
     <!-- Image Grid Cropper Code -->
-    <h1>Image Grid Cropper</h1>
+    <h1>Image Dicer</h1>
     <div id="uploadSection">
       <label for="imageFiles">Upload Images:</label>
       <input type="file" id="imageFiles" accept="image/*" multiple>
@@ -224,11 +224,7 @@
       evt.currentTarget.className += " active";
     }
 
-    // Stress Assay Scoring App JavaScript code
-    // Variables and event listeners from the previous code
-    // (Copy the JavaScript code for the Stress Assay Scoring App here)
-
-    // (Below is the JavaScript code for the Scoring App)
+    // Stress Assay Scoring code
     let images = [];
     let scores = {};
     let scoreLabels = {};
@@ -622,10 +618,6 @@
     }
 
     // Image Grid Cropper JavaScript code
-    // Variables and event listeners from the previous code
-    // (Copy the JavaScript code for the Image Grid Cropper here)
-
-    // (Below is the JavaScript code for the Image Cropper)
     const processButton = document.getElementById('processButton');
     const imageFilesInput = document.getElementById('imageFiles');
     const rowsInput = document.getElementById('rows');
@@ -729,9 +721,10 @@
           croppedImagesZip.file(`${baseFileName}/${croppedFileName}`, imgData, { base64: true });
 
           // Optionally display the cropped image on the page
-          // const cellImg = new Image();
-          // cellImg.src = cellDataURL;
-          // imageContainer.appendChild(cellImg);
+          // Comment out to remove this feature
+          const cellImg = new Image();
+          cellImg.src = cellDataURL;
+          imageContainer.appendChild(cellImg);
         }
       }
     }
