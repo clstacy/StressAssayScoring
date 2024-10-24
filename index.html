@@ -56,8 +56,8 @@
     .imageItem {
       position: relative;
       margin: 5px;
-      padding: 5px;  /* Optionally, add padding around each image */
-      border: 1px solid #ddd; /* Optional: Add a border around each image */
+      padding: 5px;
+      border: 1px solid #ddd;
     }
     .imageItem img {
       width: 150px;
@@ -147,12 +147,12 @@
             <li>Set the replication factor (e.g., 1.5 for 50% additional replicates).</li>
             <li>Click "Load Images" to begin.</li>
             <li>Select a score and click on images to assign or change scores.</li>
-            <li>Go to next page to score replicats.</li>
+            <li>Go to next page to score replicates.</li>
             <li>When finished, click "Download Scores" to export the data.</li>
           </ol>
         </div>
         <label for="fileInput">Upload Images (Folder or Files):</label>
-        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" webkitdirectory multiple>
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.tiff,.tif" webkitdirectory multiple>
         <br><br>
         <label for="scorerName">Scorer Name:</label>
         <input type="text" id="scorerName" placeholder="Enter scorer's name">
@@ -292,7 +292,7 @@
 
       images = [];
       scores = {};
-      const validExtensions = ['jpg', 'jpeg', 'png'];
+      const validExtensions = ['jpg', 'jpeg', 'png', 'tiff', 'tif'];
       const totalFiles = files.length;
       let processedFiles = 0;
 
@@ -306,9 +306,16 @@
 
         try {
           const imgData = await readFileAsync(file);
+          let imageData = imgData;
+
+          // If the image is a TIFF, convert it to JPEG
+          if (fileExtension === 'tiff' || fileExtension === 'tif') {
+            imageData = await convertTiffToJpeg(imgData);
+          }
+
           images.push({
             name: file.name,
-            data: imgData,
+            data: imageData,
             isReplicate: false,
             originalName: file.name,
             rotation: getRandomRotation()
@@ -359,6 +366,31 @@
           reject(error);
         };
         reader.readAsDataURL(file);
+      });
+    }
+
+    async function convertTiffToJpeg(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Resize the canvas to match the image
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          // Draw the image onto the canvas
+          ctx.drawImage(img, 0, 0);
+
+          // Convert the canvas to a compressed JPEG image
+          const compressedImage = canvas.toDataURL('image/jpeg', 0.8); // Adjust quality as needed
+          resolve(compressedImage);
+        };
+        img.onerror = function(error) {
+          reject(error);
+        };
+        img.src = dataUrl;
       });
     }
 
@@ -723,9 +755,11 @@
           croppedImagesZip.file(`${baseFileName}/${croppedFileName}`, imgData, { base64: true });
 
           // Optionally display the cropped image on the page
-          // Comment out to remove this feature
+          // Comment the lines below to not display the images
           const cellImg = new Image();
           cellImg.src = cellDataURL;
+          cellImg.style.margin = '5px';
+          cellImg.style.border = '1px solid #ddd';
           imageContainer.appendChild(cellImg);
         }
       }
