@@ -2,47 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Stress Assay Scoring App</title>
+  <title>Stress Assay Tools</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
     }
-
+    #tabs {
+      display: flex;
+      background-color: #333;
+    }
+    #tabs button {
+      flex: 1;
+      padding: 14px 16px;
+      background-color: inherit;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 17px;
+    }
+    #tabs button:hover {
+      background-color: #575757;
+    }
+    #tabs button.active {
+      background-color: #575757;
+    }
+    .tabContent {
+      display: none;
+      padding: 20px;
+    }
+    /* Additional styles for the apps */
     #container {
       display: flex;
     }
-
     #sidebar {
       width: 300px;
       padding: 20px;
       box-sizing: border-box;
       background-color: #f9f9f9;
       overflow-y: auto;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
     }
-
     #mainContent {
-      margin-left: 300px;
+      flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
-      height: 100vh;
       box-sizing: border-box;
     }
-
     #imageGrid {
       display: flex;
       flex-wrap: wrap;
     }
-
     .imageItem {
       position: relative;
       margin: 5px;
     }
-
     .imageItem img {
       width: 150px;
       height: auto;
@@ -50,7 +63,6 @@
       cursor: pointer;
       transition: transform 0.2s ease;
     }
-
     .imageItem .scoreOverlay {
       position: absolute;
       bottom: 5px;
@@ -60,27 +72,22 @@
       font-size: 14px;
       z-index: 10;
     }
-
     #paginationControls {
       margin-top: 10px;
       text-align: center;
     }
-
     #paginationControls button {
       margin: 0 5px;
     }
-
     #loadingMessage {
       font-size: 18px;
       color: green;
     }
-
     #progressBar {
       width: 100%;
       background-color: #ddd;
       display: none;
     }
-
     #progressBar div {
       width: 0%;
       height: 20px;
@@ -89,69 +96,138 @@
       line-height: 20px;
       color: white;
     }
+    /* Styles for Image Grid Cropper */
+    #uploadSection {
+      margin-bottom: 20px;
+    }
+    #progress {
+      margin-top: 10px;
+    }
+    #imageContainer {
+      margin-top: 20px;
+    }
+    #imageContainer img {
+      max-width: 100%;
+    }
+    #downloadButton {
+      margin-top: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
-  <div id="container">
-    <div id="sidebar">
-      <h1>Stress Assay Scoring App</h1>
 
-      <div id="instructions">
-        <h2>Instructions</h2>
-        <ol>
-          <li>Upload a folder containing your images.</li>
-          <li>Set custom scores if desired, or use default scores by clicking "Set Scores" without entering any scores.</li>
-          <li>Set the replication factor (e.g., 1.5 for 50% additional replicates).</li>
-          <li>Click "Load Images" to begin.</li>
-          <li>Select a score and click on images to assign or change scores.</li>
-          <li>Use pagination controls to navigate through images.</li>
-          <li>Once finished, click "Download Scores" to export the data.</li>
-        </ol>
+  <div id="tabs">
+    <button class="tablink active" onclick="openTab(event, 'ScoringApp')">Stress Assay Scoring App</button>
+    <button class="tablink" onclick="openTab(event, 'ImageCropper')">Image Grid Cropper</button>
+  </div>
+
+  <div id="ScoringApp" class="tabContent" style="display: block;">
+    <!-- Stress Assay Scoring App Code -->
+    <div id="container">
+      <div id="sidebar">
+        <h1>Stress Assay Scoring App</h1>
+        <div id="instructions">
+          <h2>Instructions</h2>
+          <ol>
+            <li>Upload a folder containing your images.</li>
+            <li>Set custom scores if desired, or use default scores by clicking "Set Scores" without entering any scores.</li>
+            <li>Set the replication factor (e.g., 1.5 for 50% additional replicates).</li>
+            <li>Click "Load Images" to begin.</li>
+            <li>Select a score and click on images to assign or change scores.</li>
+            <li>Use pagination controls to navigate through images.</li>
+            <li>Once finished, click "Download Scores" to export the data.</li>
+          </ol>
+        </div>
+        <label for="fileInput">Upload Images (Folder or Files):</label>
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" webkitdirectory multiple>
+        <br><br>
+        <label for="scorerName">Scorer Name:</label>
+        <input type="text" id="scorerName" placeholder="Enter scorer's name">
+        <br><br>
+        <label for="customScores">Enter Custom Scores (comma-separated, optionally with labels using colon):</label>
+        <input type="text" id="customScores" placeholder="e.g., 0: Poor,1: Fair,2: Good">
+        <button id="setScores">Set Scores</button>
+        <br><br>
+        <label for="replicationFactor">Replication Factor (e.g., 1.5):</label>
+        <input type="number" id="replicationFactor" value="1" min="1" step="0.1">
+        <br><br>
+        <button id="loadImages">Load Images</button>
+        <br><br>
+        <label for="scoreSelector">Select Score:</label>
+        <select id="scoreSelector"></select>
+        <button id="downloadScores">Download Scores</button>
+        <br><br>
+        <div id="loadingMessage"></div>
+        <div id="progressBar"><div></div></div>
       </div>
-
-      <label for="fileInput">Upload Images (Folder or Files):</label>
-      <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" webkitdirectory multiple>
-      <br><br>
-
-      <label for="scorerName">Scorer Name:</label>
-      <input type="text" id="scorerName" placeholder="Enter scorer's name">
-      <br><br>
-
-      <label for="customScores">Enter Custom Scores (comma-separated, optionally with labels using colon):</label>
-      <input type="text" id="customScores" placeholder="e.g., 0: Poor,1: Fair,2: Good">
-      <button id="setScores">Set Scores</button>
-      <br><br>
-
-      <label for="replicationFactor">Replication Factor (e.g., 1.5):</label>
-      <input type="number" id="replicationFactor" value="1" min="1" step="0.1">
-      <br><br>
-
-      <button id="loadImages">Load Images</button>
-      <br><br>
-
-      <label for="scoreSelector">Select Score:</label>
-      <select id="scoreSelector"></select>
-      <button id="downloadScores">Download Scores</button>
-      <br><br>
-
-      <div id="loadingMessage"></div>
-      <div id="progressBar"><div></div></div>
-    </div>
-
-    <div id="mainContent">
-      <div id="paginationControls" style="display: none;">
-        <button id="prevPage">Previous</button>
-        <span id="pageInfo"></span>
-        <button id="nextPage">Next</button>
+      <div id="mainContent">
+        <div id="paginationControls" style="display: none;">
+          <button id="prevPage">Previous</button>
+          <span id="pageInfo"></span>
+          <button id="nextPage">Next</button>
+        </div>
+        <hr>
+        <div id="imageGrid"></div>
       </div>
-      <hr>
-      <div id="imageGrid"></div>
     </div>
   </div>
 
+  <div id="ImageCropper" class="tabContent">
+    <!-- Image Grid Cropper Code -->
+    <h1>Image Grid Cropper</h1>
+    <div id="uploadSection">
+      <label for="imageFiles">Upload Images:</label>
+      <input type="file" id="imageFiles" accept="image/*" multiple>
+      <label for="rows">Number of Rows:</label>
+      <input type="number" id="rows" value="5" min="1">
+      <label for="cols">Number of Columns:</label>
+      <input type="number" id="cols" value="12" min="1">
+      <label for="rowLabels">Row Labels (comma-separated):</label>
+      <textarea id="rowLabels">Mock,0.4M.NaCl,5pctEtOH,0.4mMH2O2,37cHeat</textarea>
+      <label for="colLabels">Column Labels (comma-separated):</label>
+      <textarea id="colLabels">0mMH2O2,0.75mMH2O2,1mMH2O2,1.25mMH2O2,1.5mMH2O2,1.75mMH2O2,2mMH2O2,2.5mMH2O2,3mMH2O2,3.5mMH2O2,4mMH2O2,5mMH2O2</textarea>
+      <button id="processButton">Process Images</button>
+      <div id="progress"></div>
+    </div>
+    <div id="imageContainer"></div>
+    <button id="downloadButton" style="display: none;">Download Cropped Images</button>
+  </div>
+
+  <!-- Include JSZip and FileSaver.js libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <script>
+    // Tab functionality
+    function openTab(evt, tabName) {
+      var i, tabContent, tablinks;
+      tabContent = document.getElementsByClassName("tabContent");
+      for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablink");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    // Stress Assay Scoring App JavaScript code
+    // Variables and event listeners from the previous code
+    // (Copy the JavaScript code for the Stress Assay Scoring App here)
+
+    // (Below is the JavaScript code for the Scoring App)
     let images = [];
     let scores = {};
     let scoreLabels = {};
@@ -543,6 +619,129 @@
       });
       return inconsistencies;
     }
+
+    // Image Grid Cropper JavaScript code
+    // Variables and event listeners from the previous code
+    // (Copy the JavaScript code for the Image Grid Cropper here)
+
+    // (Below is the JavaScript code for the Image Cropper)
+    const processButton = document.getElementById('processButton');
+    const imageFilesInput = document.getElementById('imageFiles');
+    const rowsInput = document.getElementById('rows');
+    const colsInput = document.getElementById('cols');
+    const rowLabelsInput = document.getElementById('rowLabels');
+    const colLabelsInput = document.getElementById('colLabels');
+    const progressDiv = document.getElementById('progress');
+    const imageContainer = document.getElementById('imageContainer');
+    const downloadButton = document.getElementById('downloadButton');
+
+    let croppedImagesZip;
+
+    processButton.addEventListener('click', () => {
+      const files = imageFilesInput.files;
+      if (files.length === 0) {
+        alert('Please upload at least one image.');
+        return;
+      }
+
+      const rows = parseInt(rowsInput.value);
+      const cols = parseInt(colsInput.value);
+      if (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) {
+        alert('Please enter valid numbers for rows and columns.');
+        return;
+      }
+
+      const rowLabels = rowLabelsInput.value.split(',').map(label => label.trim());
+      const colLabels = colLabelsInput.value.split(',').map(label => label.trim());
+
+      if (rowLabels.length !== rows) {
+        alert(`Number of row labels (${rowLabels.length}) does not match number of rows (${rows}).`);
+        return;
+      }
+
+      if (colLabels.length !== cols) {
+        alert(`Number of column labels (${colLabels.length}) does not match number of columns (${cols}).`);
+        return;
+      }
+
+      progressDiv.textContent = 'Processing images...';
+      imageContainer.innerHTML = '';
+      downloadButton.style.display = 'none';
+      croppedImagesZip = new JSZip();
+
+      let processedCount = 0;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            processImage(img, file.name, rows, cols, rowLabels, colLabels);
+            processedCount++;
+            if (processedCount === files.length) {
+              progressDiv.textContent = 'All images processed.';
+              downloadButton.style.display = 'inline-block';
+            } else {
+              progressDiv.textContent = `Processed ${processedCount}/${files.length} images...`;
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function processImage(img, fileName, rows, cols, rowLabels, colLabels) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const cellWidth = Math.floor(img.width / cols);
+      const cellHeight = Math.floor(img.height / rows);
+
+      const baseFileName = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const x = j * cellWidth;
+          const y = i * cellHeight;
+          const width = cellWidth;
+          const height = cellHeight;
+
+          const cellCanvas = document.createElement('canvas');
+          const cellCtx = cellCanvas.getContext('2d');
+          cellCanvas.width = width;
+          cellCanvas.height = height;
+
+          cellCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
+
+          const cellDataURL = cellCanvas.toDataURL('image/jpeg');
+
+          const rowLabel = rowLabels[i];
+          const colLabel = colLabels[j];
+          const croppedFileName = `${baseFileName}_${rowLabel}_${colLabel}.jpg`;
+
+          // Add to ZIP
+          const imgData = cellDataURL.split(',')[1]; // Remove the data:image/jpeg;base64, part
+          croppedImagesZip.file(`${baseFileName}/${croppedFileName}`, imgData, { base64: true });
+
+          // Optionally display the cropped image on the page
+          // const cellImg = new Image();
+          // cellImg.src = cellDataURL;
+          // imageContainer.appendChild(cellImg);
+        }
+      }
+    }
+
+    downloadButton.addEventListener('click', () => {
+      progressDiv.textContent = 'Generating ZIP file...';
+      croppedImagesZip.generateAsync({ type: 'blob' }).then(function(content) {
+        saveAs(content, 'cropped_images.zip');
+        progressDiv.textContent = 'Download complete.';
+      });
+    });
   </script>
 </body>
 </html>
