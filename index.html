@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Enhanced Image Scoring App</title>
+  <title>Stress Assay Scoring App</title>
   <style>
     /* CSS styles */
     body {
@@ -48,6 +48,7 @@
       height: auto;
       border: 3px solid black;
       cursor: pointer;
+      transition: transform 0.2s ease;
     }
 
     .imageItem .scoreOverlay {
@@ -212,9 +213,9 @@
           images.push({
             name: zipEntry.name,
             data: 'data:image/jpeg;base64,' + imgData,
-            anonymousId: '', // To be assigned later
             isReplicate: false,
-            originalName: zipEntry.name
+            originalName: zipEntry.name,
+            rotation: getRandomRotation()
           });
         }
       }
@@ -224,11 +225,6 @@
         document.getElementById('loadingMessage').textContent = '';
         return;
       }
-
-      // Assign anonymous IDs
-      images.forEach((img, index) => {
-        img.anonymousId = 'Image_' + (index + 1);
-      });
 
       // Replicate images if needed
       const replicationFactor = parseFloat(document.getElementById('replicationFactor').value) || 1.0;
@@ -302,11 +298,13 @@
         const randomIndex = Math.floor(Math.random() * numOriginalImages);
         const originalImage = imagesArray[randomIndex];
 
-        // Create a copy of the image object
+        // Create a copy of the image object with a unique name
         const replicatedImage = {
           ...originalImage,
           isReplicate: true,
-          originalName: originalImage.name
+          originalName: originalImage.name,
+          name: originalImage.name + '_replicate_' + (i + 1),
+          rotation: getRandomRotation()
         };
 
         replicatedImages.push(replicatedImage);
@@ -314,6 +312,12 @@
 
       // Combine original and replicated images
       return imagesArray.concat(replicatedImages);
+    }
+
+    // Function to get a random rotation angle
+    function getRandomRotation() {
+      const rotations = [0, 90, 180, 270];
+      return rotations[Math.floor(Math.random() * rotations.length)];
     }
 
     // Function to shuffle an array
@@ -359,6 +363,7 @@
         const imgElement = document.createElement('img');
         imgElement.src = img.data;
         imgElement.dataset.index = index;
+        imgElement.style.transform = `rotate(${img.rotation}deg)`;
         imgElement.addEventListener('click', () => {
           const scoreSelector = document.getElementById('scoreSelector');
           if (scoreSelector.value === '') {
@@ -372,8 +377,7 @@
             score: score,
             timestamp: timestamp,
             isReplicate: img.isReplicate || false,
-            originalName: img.originalName,
-            anonymousId: img.anonymousId
+            originalName: img.originalName
           };
           imgElement.style.borderColor = scoreColors[score] || 'red';
 
@@ -462,16 +466,16 @@
       }
 
       // Prepare CSV content
-      let csvContent = "Image ID,File Name,Score,Timestamp,Is Replicate,Original Image ID\n";
+      let csvContent = "File Name,Score,Timestamp,Is Replicate,Original File Name\n";
       images.forEach(img => {
         const data = scores[img.name];
         const score = data ? getScoreLabel(data.score) : '';
         const timestamp = data ? data.timestamp : '';
         const isReplicate = data ? data.isReplicate : false;
-        const originalAnonymousId = data ? images.find(image => image.name === data.originalName).anonymousId : img.anonymousId;
+        const originalFileName = img.isReplicate ? img.originalName : '';
         const fileName = img.name;
 
-        csvContent += `"${img.anonymousId}","${fileName}","${score}","${timestamp}","${isReplicate}","${originalAnonymousId}"\n`;
+        csvContent += `"${fileName}","${score}","${timestamp}","${isReplicate}","${originalFileName}"\n`;
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -489,8 +493,8 @@
 
           if (originalData && replicateData && originalData.score !== replicateData.score) {
             inconsistencies.push({
-              originalAnonymousId: images.find(image => image.name === img.originalName).anonymousId,
-              replicateAnonymousId: img.anonymousId,
+              originalFileName: img.originalName,
+              replicateFileName: img.name,
               originalScore: getScoreLabel(originalData.score),
               replicateScore: getScoreLabel(replicateData.score)
             });
