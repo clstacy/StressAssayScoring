@@ -384,7 +384,7 @@
           ctx.drawImage(img, 0, 0);
 
           // Convert the canvas to a compressed JPEG image
-          const compressedImage = canvas.toDataURL('image/jpeg', 0.8); // Adjust quality as needed
+          const compressedImage = canvas.toDataURL('image/jpeg', 0.2); // Adjust quality as needed
           resolve(compressedImage);
         };
         img.onerror = function(error) {
