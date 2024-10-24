@@ -3,23 +3,53 @@
 <head>
   <title>Enhanced Image Scoring App</title>
   <style>
+    /* CSS styles */
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
     }
+
+    #container {
+      display: flex;
+    }
+
+    #sidebar {
+      width: 300px;
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #f9f9f9;
+      overflow-y: auto;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    #mainContent {
+      margin-left: 300px; /* same as sidebar width */
+      padding: 20px;
+      overflow-y: auto;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
     #imageGrid {
       display: flex;
       flex-wrap: wrap;
     }
+
     .imageItem {
       position: relative;
       margin: 5px;
     }
+
     .imageItem img {
       width: 150px;
       height: auto;
       border: 3px solid black;
       cursor: pointer;
     }
+
     .imageItem .scoreOverlay {
       position: absolute;
       bottom: 5px;
@@ -28,21 +58,16 @@
       padding: 2px 5px;
       font-size: 14px;
     }
+
     #paginationControls {
       margin-top: 10px;
       text-align: center;
     }
+
     #paginationControls button {
       margin: 0 5px;
     }
-    #instructions {
-      background-color: #f9f9f9;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    #instructions h2 {
-      margin-top: 0;
-    }
+
     #loadingMessage {
       font-size: 18px;
       color: green;
@@ -50,66 +75,67 @@
   </style>
 </head>
 <body>
-  <h1>Enhanced Image Scoring App</h1>
+  <div id="container">
+    <div id="sidebar">
+      <h1>Enhanced Image Scoring App</h1>
 
-  <div id="instructions">
-    <h2>Instructions</h2>
-    <ol>
-      <li>Upload a ZIP file containing your images.</li>
-      <li>Enter custom scores and click "Set Scores" (optional).</li>
-      <li>Set a default score if desired.</li>
-      <li>Set the replication factor if needed (e.g., 1.2 for 20% replication).</li>
-      <li>Choose whether to enable pagination and specify images per page.</li>
-      <li>Click "Load Images" to begin.</li>
-      <li>Select a score and click on images to assign or change scores.</li>
-      <li>Use pagination controls to navigate through images (if enabled).</li>
-      <li>Once finished, click "Download Scores" to export the data.</li>
-    </ol>
+      <div id="instructions">
+        <h2>Instructions</h2>
+        <ol>
+          <li>Upload a ZIP file containing your images.</li>
+          <li>Set custom scores if desired, or use default scores (0,1,2,3,4).</li>
+          <li>Set the replication factor if needed (e.g., 1.2 for 20% replication).</li>
+          <li>Choose whether to enable pagination and specify images per page.</li>
+          <li>Click "Load Images" to begin.</li>
+          <li>Select a score and click on images to assign or change scores.</li>
+          <li>Use pagination controls to navigate through images (if enabled).</li>
+          <li>Once finished, click "Download Scores" to export the data.</li>
+        </ol>
+      </div>
+
+      <input type="file" id="zipInput" accept=".zip">
+      <br><br>
+
+      <label for="customScores">Enter Custom Scores (comma-separated, optionally with labels using colon):</label>
+      <input type="text" id="customScores" placeholder="e.g., 0: Poor,1: Fair,2: Good">
+      <button id="setScores">Set Scores</button>
+      <br><br>
+
+      <label for="replicationFactor">Replication Factor (e.g., 1.2 for 20% replication):</label>
+      <input type="number" id="replicationFactor" value="1.0" min="1.0" step="0.1">
+      <br><br>
+
+      <input type="checkbox" id="enablePagination">
+      <label for="enablePagination">Enable Pagination</label>
+      <br><br>
+
+      <div id="paginationSettings" style="display: none;">
+        <label for="imagesPerPage">Images Per Page:</label>
+        <input type="number" id="imagesPerPage" value="20" min="1" step="1">
+        <br><br>
+      </div>
+
+      <button id="loadImages">Load Images</button>
+      <br><br>
+
+      <label for="scoreSelector">Select Score:</label>
+      <select id="scoreSelector"></select>
+      <button id="downloadScores">Download Scores</button>
+      <br><br>
+
+      <div id="loadingMessage"></div>
+    </div>
+
+    <div id="mainContent">
+      <div id="paginationControls" style="display: none;">
+        <button id="prevPage">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage">Next</button>
+      </div>
+      <hr>
+      <div id="imageGrid"></div>
+    </div>
   </div>
-
-  <input type="file" id="zipInput" accept=".zip">
-  <br><br>
-
-  <label for="customScores">Enter Custom Scores (comma-separated, optionally with labels using colon):</label>
-  <input type="text" id="customScores" placeholder="e.g., 0: Poor,1: Fair,2: Good">
-  <button id="setScores">Set Scores</button>
-  <br><br>
-
-  <label for="defaultScore">Default Score (optional):</label>
-  <input type="text" id="defaultScore" placeholder="Enter default score">
-  <br><br>
-
-  <label for="replicationFactor">Replication Factor (e.g., 1.2 for 20% replication):</label>
-  <input type="number" id="replicationFactor" value="1.0" min="1.0" step="0.1">
-  <br><br>
-
-  <input type="checkbox" id="enablePagination">
-  <label for="enablePagination">Enable Pagination</label>
-  <br><br>
-
-  <div id="paginationSettings" style="display: none;">
-    <label for="imagesPerPage">Images Per Page:</label>
-    <input type="number" id="imagesPerPage" value="20" min="1" step="1">
-    <br><br>
-  </div>
-
-  <button id="loadImages">Load Images</button>
-  <br><br>
-
-  <label for="scoreSelector">Select Score:</label>
-  <select id="scoreSelector"></select>
-  <button id="downloadScores">Download Scores</button>
-  <br><br>
-
-  <div id="paginationControls" style="display: none;">
-    <button id="prevPage">Previous</button>
-    <span id="pageInfo"></span>
-    <button id="nextPage">Next</button>
-  </div>
-
-  <div id="loadingMessage"></div>
-  <hr>
-  <div id="imageGrid"></div>
 
   <!-- Include JSZip and FileSaver.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
@@ -126,6 +152,13 @@
     let paginationEnabled = false;
     let scoreColors = {}; // To store colors for each score
 
+    // On page load, set default scores
+    document.addEventListener('DOMContentLoaded', () => {
+      const defaultScoresArray = ['0', '1', '2', '3', '4'];
+      assignScoreColors(defaultScoresArray);
+      populateScoreSelector(defaultScoresArray);
+    });
+
     // Handle zip file upload
     document.getElementById('zipInput').addEventListener('change', function(event) {
       const file = event.target.files[0];
@@ -140,8 +173,8 @@
       const customScoresArray = parseCustomScores(customScoresInput);
 
       if (customScoresArray.length > 0) {
-        populateScoreSelector(customScoresArray);
         assignScoreColors(customScoresArray);
+        populateScoreSelector(customScoresArray);
       } else {
         alert('Please enter valid scores.');
       }
@@ -209,22 +242,8 @@
       imagesPerPage = parseInt(document.getElementById('imagesPerPage').value) || 20;
       currentPage = 1;
 
-      // Assign default score if set
-      const defaultScore = document.getElementById('defaultScore').value;
-      if (defaultScore !== '' && scoreLabels[defaultScore]) {
-        images.forEach(img => {
-          const timestamp = new Date().toISOString();
-          scores[img.name] = {
-            score: defaultScore,
-            timestamp: timestamp,
-            isReplicate: img.isReplicate || false,
-            originalName: img.originalName,
-            anonymousId: img.anonymousId
-          };
-        });
-      }
-
       // Display images
+      sortImages();
       displayImages();
 
       document.getElementById('loadingMessage').textContent = '';
@@ -268,7 +287,7 @@
       scoresArray.forEach(score => {
         const option = document.createElement('option');
         option.value = score;
-        option.textContent = scoreLabels[score];
+        option.textContent = scoreLabels[score] || score;
         scoreSelector.appendChild(option);
       });
     }
@@ -305,6 +324,22 @@
       }
     }
 
+    // Function to sort images based on score
+    function sortImages() {
+      images.sort((a, b) => {
+        const scoreA = scores[a.name] ? scores[a.name].score : null;
+        const scoreB = scores[b.name] ? scores[b.name].score : null;
+
+        if (scoreA === null && scoreB === null) return 0;
+        if (scoreA === null) return -1;
+        if (scoreB === null) return 1;
+
+        // Sort based on the order of scores in scoreLabels
+        const scoreOrder = Object.keys(scoreLabels);
+        return scoreOrder.indexOf(scoreA) - scoreOrder.indexOf(scoreB);
+      });
+    }
+
     // Function to display images in a grid with pagination
     function displayImages() {
       const grid = document.getElementById('imageGrid');
@@ -325,20 +360,14 @@
         imgElement.src = img.data;
         imgElement.dataset.index = index;
         imgElement.addEventListener('click', () => {
-          let score;
-          let timestamp = new Date().toISOString();
-
           const scoreSelector = document.getElementById('scoreSelector');
-          if (scoreSelector.value !== '') {
-            score = scoreSelector.value;
-          } else if (scores[img.name]) {
-            score = scores[img.name].score;
-          } else {
+          if (scoreSelector.value === '') {
             alert('Please select a score.');
             return;
           }
-
+          const score = scoreSelector.value;
           const scoreText = scoreLabels[score];
+          const timestamp = new Date().toISOString();
           scores[img.name] = {
             score: score,
             timestamp: timestamp,
@@ -357,6 +386,10 @@
           } else {
             imgContainer.querySelector('.scoreOverlay').textContent = 'Score: ' + scoreText;
           }
+
+          // Re-sort images and re-display
+          sortImages();
+          displayImages();
         });
 
         // If image is already scored, show the score
