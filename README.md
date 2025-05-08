@@ -1,35 +1,30 @@
-# Image Scoring App for Yeast Growth
+# Stress Assay Tools: Image Dicer & Scorer
 
-Welcome to the **Stress Assay Scorer**, an interactive, browser-based tool designed for scientific research involving image analysis and scoring. This application allows users to upload images, assign scores based on custom criteria, and export the results for further analysis. It runs entirely in your web browser, requiring no server-side processing or additional software installations.
+Welcome to the **Stress Assay Tools**, an interactive, browser-based suite designed for scientific research involving the processing and scoring of stress assay plate images (e.g., yeast growth assays). This application allows users to:
 
-To use this tool now, visit: [https://clstacy.github.io/StressAssayScoring](https://clstacy.github.io/StressAssayScoring/)
+1.  **Dice** large plate images into individual well images using the **Image Grid Dicer**.
+2.  **Upload** these individual well images (potentially from multiple plates/experiments organized in folders) to the **Stress Assay Scorer**.
+3.  **Assign scores** based on default or custom criteria, utilizing features for blinded scoring.
+4.  **Review** results and quality control metrics, including inter-replicate reliability (Cohen's Kappa).
+5.  **Export** comprehensive scoring data and reconstructed plate mosaics.
+
+The entire application runs in your web browser, requiring no server-side processing or additional software installations. All data remains local to your machine.
+
+**To use this tool now, visit:** [https://clstacy.github.io/StressAssayScoring/](https://clstacy.github.io/StressAssayScoring/)
+
 ---
 
 ## Table of Contents
 
 - [Features](#features)
+- [Workflow Overview](#workflow-overview)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Deployment](#deployment)
 - [Usage Instructions](#usage-instructions)
-  - [1. Upload Images](#1-upload-images)
-  - [2. Set Custom Scores (Optional)](#2-set-custom-scores-optional)
-  - [3. Set Default Score (Optional)](#3-set-default-score-optional)
-  - [4. Set Replication Factor (Optional)](#4-set-replication-factor-optional)
-  - [5. Enable Pagination (Optional)](#5-enable-pagination-optional)
-  - [6. Load Images](#6-load-images)
-  - [7. Assign Scores to Images](#7-assign-scores-to-images)
-  - [8. Navigate Between Pages](#8-navigate-between-pages)
-  - [9. Download Scores](#9-download-scores)
+  - [Part 1: Image Grid Dicer](#part-1-image-grid-dicer)
+  - [Part 2: Stress Assay Scorer](#part-2-stress-assay-scorer)
 - [Features Explanation](#features-explanation)
-  - [Randomization](#randomization)
-  - [Replication for Consistency Checks](#replication-for-consistency-checks)
-  - [Blinding Image Names](#blinding-image-names)
-  - [Color-Coded Scores](#color-coded-scores)
-  - [Default Score](#default-score)
-  - [Pagination](#pagination)
-  - [Consistency Checks](#consistency-checks)
-  - [Comprehensive Data Export](#comprehensive-data-export)
 - [Technical Details](#technical-details)
 - [Browser Compatibility](#browser-compatibility)
 - [Privacy and Security](#privacy-and-security)
@@ -40,16 +35,42 @@ To use this tool now, visit: [https://clstacy.github.io/StressAssayScoring](http
 
 ## Features
 
-- **User-Friendly Interface**: Intuitive design for easy navigation and scoring.
-- **Custom Scoring**: Define your own scoring criteria and labels.
-- **Randomization**: Images are displayed in random order to prevent bias.
-- **Replication**: Include replicated images to assess intra-observer reliability.
-- **Blinding**: Image filenames are anonymized to prevent bias.
-- **Color-Coded Scores**: Assign unique colors to scores for quick visual identification.
-- **Default Score**: Set a default score to be assigned automatically to all images.
-- **Pagination**: Optionally enable pagination and specify the number of images per page.
-- **Consistency Checks**: Detect and alert inconsistencies in replicated image scoring.
-- **Data Export**: Download scoring results as a CSV file with comprehensive data.
+* **Two-Tab Interface**: Separate tools for dicing plate images and scoring wells.
+* **Image Grid Dicer**:
+    * Processes large plate images into individual well images based on user-defined grid dimensions and labels.
+    * Handles multiple plate images simultaneously.
+    * Exports cropped wells organized by original plate image into a ZIP file.
+    * Saves row/column label order for consistent mosaic generation later.
+* **Stress Assay Scorer**:
+    * Upload cropped well images via **folder selection** (recommended for multi-plate experiments).
+    * Handles images from multiple plates/subfolders, preserving plate identity.
+    * **Custom Scoring**: Define scoring criteria and labels.
+    * **Blinded Scoring**:
+        * Randomized image presentation order.
+        * Optional random image rotation during scoring.
+    * **Replication**: Include replicated images (user-defined factor) for consistency checks.
+    * **Quality Control**:
+        * Calculates Cohen's Weighted Kappa (κ) for inter-replicate reliability.
+        * Reports on replicate scoring consistency.
+    * **Results Visualization**: Modal view showing scored images grouped by category and summary statistics.
+    * **Comprehensive Data Export**: Downloads a single ZIP file containing:
+        * `image_scores.csv`: Detailed scoring data including PlateID, FilePath, Row, Column, Score, Timestamp, etc.
+        * `summary_statistics.txt`: QC report including Kappa results.
+        * `plate_mosaics/` folder: Contains a reconstructed, unrotated mosaic image (`.png`) for *each* plate scored, with scores overlaid and informative row/column labels.
+
+---
+
+## Workflow Overview
+
+1.  **(Optional but Recommended)** Crop original plate scan images to the area containing spots.
+2.  Use the **Image Grid Dicer** tab to upload the cropped plate scans, define the grid layout (rows, columns) and corresponding labels, and download a ZIP file containing individual well images organized into folders.
+3.  Switch to the **Stress Assay Scorer** tab.
+4.  Upload the **folder(s)** containing the individual well images generated by the Dicer.
+5.  Enter scorer name, optionally set custom scores or replication factor.
+6.  Load images for scoring.
+7.  Assign scores to the randomized and potentially rotated images, navigating pages if replicates exist.
+8.  View results and QC metrics.
+9.  Download the final ZIP archive containing the CSV data, summary report, and plate mosaics.
 
 ---
 
@@ -57,142 +78,63 @@ To use this tool now, visit: [https://clstacy.github.io/StressAssayScoring](http
 
 ### Prerequisites
 
-- A modern web browser (Google Chrome, Mozilla Firefox, Microsoft Edge, Safari).
+- A modern web browser that supports the `webkitdirectory` attribute for folder uploads (e.g., Google Chrome, Mozilla Firefox, Microsoft Edge, Safari).
 - No additional software installations are required.
 
 ### Deployment
 
-The app is a static HTML file and can be run locally or hosted online.
+The app is a static HTML file and can be run locally or hosted online (e.g., using GitHub Pages).
 
 #### Running Locally
 
-1. **Download the Repository**:
-   - Clone the repository or download the ZIP file and extract it to a folder on your computer.
+1.  Download or clone the repository.
+2.  Open the `index.html` file directly in your web browser.
 
-2. **Open the App**:
-   - Open the `index.html` file in your preferred web browser.
+#### Hosting Online (GitHub Pages Example)
 
-#### Hosting Online (GitHub Pages)
-
-1. **Fork or Clone the Repository**:
-   - Fork this repository to your GitHub account or clone it.
-
-2. **Enable GitHub Pages**:
-   - Go to the repository settings.
-   - Scroll down to the "GitHub Pages" section.
-   - Under "Source," select the `main` branch and click "Save."
-
-3. **Access the App**:
-   - The app will be available at `https://<your-username>.github.io/<repository-name>/`.
+1.  Fork this repository.
+2.  Go to your repository's settings > Pages.
+3.  Select the source branch (e.g., `main`) and save.
+4.  Access the app via the provided GitHub Pages URL (`https://<your-username>.github.io/<repository-name>/`).
 
 ---
 
 ## Usage Instructions
 
-### 1. Upload Images
+*(See the detailed [VIGNETTE.md](VIGNETTE.md) file for a step-by-step tutorial with examples).*
 
-- Click on the **"Browse"** button to upload a ZIP file containing your images.
-- The app supports images in `.png`, `.jpg`, and `.jpeg` formats.
-- Wait for the images to be processed (a loading message will appear).
+### Part 1: Image Grid Dicer
 
-### 2. Set Custom Scores (Optional)
+1.  Navigate to the **Image Grid Dicer** tab.
+2.  Upload one or more (cropped) plate scan images.
+3.  Define the number of **Rows** and **Columns**.
+4.  Enter comma-separated **Row Labels** and **Column Labels** matching the grid dimensions. Underscores are recommended over spaces.
+5.  Click **Process Images**.
+6.  Click **Download Cropped Images ZIP**.
+7.  Unzip the file and verify the contents (folders named after original plates, containing individual well images).
 
-- **Optional but recommended**.
-- Enter your desired scores and labels in the **"Enter Custom Scores"** field.
-- **Format**: `score: label`, separated by commas.
-  - Example: `0: Poor, 1: Fair, 2: Good, 3: Very Good, 4: Excellent`
-- Click **"Set Scores"** to populate the score selector and assign colors.
+### Part 2: Stress Assay Scorer
 
-### 3. Set Default Score (Optional)
-
-- Enter a default score in the **"Default Score"** field.
-- The default score must be one of the scores you've set.
-- This score will be automatically assigned to all images upon loading.
-
-### 4. Set Replication Factor (Optional)
-
-- Enter a replication factor greater than `1.0` to include replicated images.
-- **Example**: `1.2` for 20% replication.
-
-### 5. Enable Pagination (Optional)
-
-- Check the **"Enable Pagination"** box to paginate images.
-- Specify the number of images per page in the **"Images Per Page"** field.
-
-### 6. Load Images
-
-- Click the **"Load Images"** button to start the scoring session.
-- The images will be randomized and displayed according to your settings.
-
-### 7. Assign Scores to Images
-
-- Select a score from the **dropdown menu**.
-- Click on images to assign or change scores.
-- Images will display a border color corresponding to their assigned score.
-- A score label will appear over each scored image.
-
-### 8. Navigate Between Pages
-
-- **If pagination is enabled**.
-- Use the **"Previous"** and **"Next"** buttons to navigate through the pages.
-- The current page number and total pages are displayed.
-
-### 9. Download Scores
-
-- Once you have finished scoring, click the **"Download Scores"** button.
-- The app will check for unscored images and inconsistencies in replicated images.
-- The scoring results will be saved as a CSV file named `image_scores.csv`.
+1.  Navigate to the **Stress Assay Scorer** tab.
+2.  Click **"1. Upload well images (folder recommended)"** and select the **folder(s)** containing the well images generated by the Dicer.
+3.  Enter your **"2. Scorer name"**.
+4.  (Optional) Set **"3. Custom scores"** and click **Set**.
+5.  (Optional) Adjust the **"4. Replication factor"**.
+6.  Click **"5. Load Images for Scoring"**.
+7.  Use the **"6. Select score"** dropdown and click images in the main grid to assign scores.
+8.  Use **Prev/Next Page** buttons if replicates exist (Factor > 1).
+9.  Click **Finish & View Results** to see the summary modal (includes Kappa score).
+10. Click **Download Scores & Mosaics** to get the final ZIP archive.
 
 ---
 
 ## Features Explanation
 
-### Randomization
-
-- Images are shuffled to prevent order bias.
-- Ensures that the scoring is not influenced by the sequence of images.
-
-### Replication for Consistency Checks
-
-- Replicates a specified percentage of images.
-- Helps assess the reliability of the scoring by comparing scores of original and replicated images.
-
-### Blinding Image Names
-
-- Images are assigned anonymous IDs (e.g., `Image_1`, `Image_2`).
-- Original filenames are not displayed during scoring to prevent bias.
-- Original filenames are included in the exported CSV for analysis.
-
-### Color-Coded Scores
-
-- Each score is assigned a unique border color.
-- Enhances visual differentiation between scores.
-- Helps quickly identify images based on their assigned scores.
-
-### Default Score
-
-- Allows setting a default score to be automatically assigned to all images upon loading.
-- Useful when most images are expected to have the same initial score.
-
-### Pagination
-
-- Improves performance and usability when dealing with a large number of images.
-- Users can enable or disable pagination and specify the number of images per page.
-
-### Consistency Checks
-
-- The app checks for inconsistencies in scoring of replicated images.
-- Alerts the user if discrepancies are found between original and replicated image scores.
-
-### Comprehensive Data Export
-
-- Exports scoring data as a CSV file containing:
-  - **Image ID**: Anonymous identifier.
-  - **File Name**: Original filename of the image.
-  - **Score**: Assigned score (with label if provided).
-  - **Timestamp**: When the score was assigned.
-  - **Is Replicate**: Indicates if the image is a replicate.
-  - **Original Image ID**: Anonymous ID of the original image for replicates.
+* **Multi-Plate Handling**: Uploading folders allows the scorer to distinguish images originating from different plates/experiments based on their subfolder path (`PlateID`). Mosaics are generated per-plate.
+* **Blinding**: Image randomization and optional rotation help reduce bias during the manual scoring process.
+* **Replication & Kappa**: Allows quantitative assessment of scoring consistency using Cohen's Weighted Kappa.
+* **Mosaic Output**: Provides a visual overview of scores across each original plate layout, aiding in pattern recognition and verification. Scores are overlaid, and conflicting replicate scores are shown (e.g., "1/2").
+* **Detailed CSV**: Includes `PlateID` and `FilePath` for robust data tracking and merging with other experimental metadata.
 
 ---
 
@@ -200,62 +142,36 @@ The app is a static HTML file and can be run locally or hosted online.
 
 - **Technologies Used**:
   - HTML, CSS, JavaScript.
-  - [JSZip](https://stuk.github.io/jszip/) for unzipping files client-side.
+  - [JSZip](https://stuk.github.io/jszip/) for ZIP file creation.
   - [FileSaver.js](https://github.com/eligrey/FileSaver.js/) for saving files in the browser.
-
-- **Data Handling**:
-  - All data processing is done client-side.
-  - No data is uploaded to any server.
-  - Images and scores are stored in memory during the session.
+- **Data Handling**: All processing is client-side. No data is uploaded.
 
 ---
 
 ## Browser Compatibility
 
-- The app is compatible with modern web browsers:
-  - Google Chrome
-  - Mozilla Firefox
-  - Microsoft Edge
-  - Safari
-
-- **Note**: Ensure that JavaScript is enabled in your browser settings.
+- Compatible with modern browsers supporting `webkitdirectory` (Chrome, Firefox, Edge, Safari).
+- JavaScript must be enabled.
 
 ---
 
 ## Privacy and Security
 
-- **Data Privacy**:
-  - All image processing and scoring are performed locally in your browser.
-  - No images or data are transmitted over the internet.
-  
-- **Security Considerations**:
-  - Since the app runs locally, it's important to use it on a secure device.
-  - Be cautious when handling sensitive or confidential images.
+- **Data Privacy**: All operations occur locally in the browser. No data transmission occurs.
+- **Security Considerations**: Use on a trusted device.
 
 ---
 
 ## Contributing
 
-Contributions are welcome! If you'd like to improve the app or add new features:
-
-1. **Fork the Repository**: Create a personal copy on your GitHub account.
-
-2. **Create a New Branch**: For your feature or bug fix.
-
-3. **Make Your Changes**: Implement your improvements.
-
-4. **Submit a Pull Request**: Describe your changes and submit for review.
-
-Please ensure that your contributions align with the project's goals and maintain code quality.
+Contributions are welcome! Please follow standard GitHub fork/pull request procedures.
 
 ---
 
 ## License
 
-This project is licensed under the Apache License.
+This project is licensed under the Apache License. See the LICENSE file for details.
 
 ---
 
-If you have any questions or need assistance, feel free to open an issue or <clstacy.stat@gmail.com>.
-
-Enjoy using the Image Scoring App for your scientific research!
+If you have questions or issues, please open an issue on the GitHub repository or contact <clstacy.stat@gmail.com>.
