@@ -605,7 +605,6 @@ function renderThumbnails() {
     
     const imgElement = new Image();
     imgElement.src = imgItem.data;
-    imgElement.title = `${imgItem.name}\nPlate: ${imgItem.plateId}\nOriginal File: ${imgItem.originalFileName}\nRow: ${imgItem.row || 'N/A'}, Col: ${imgItem.col || 'N/A'}\nRep: ${imgItem.replicateNumber}`;
     imgElement.style.transform = `rotate(${imgItem.rotation}deg)`; 
     
     if (S.scores[imgItem.name]) {
