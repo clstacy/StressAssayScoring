@@ -1070,7 +1070,6 @@ document.getElementById('downloadScores').onclick = async () => {
       
         if (!S.summaryStatisticsText || Object.keys(S.scores).length > 0) { calculateSummaryAndQC(); }
 
-        // Safely get values from optional input fields
         const colNamesInput = document.getElementById('csvColNames');
         const delimiterInput = document.getElementById('csvDelimiter');
         const customHeaders = colNamesInput ? colNamesInput.value.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -1089,12 +1088,13 @@ document.getElementById('downloadScores').onclick = async () => {
         for (let i = 0; i < maxTotalParts; i++) {
             metadataHeaders.push(customHeaders[i] || `Part_${i + 1}`);
         }
+        const scoreHeader = ['AssignedScore']; // Moved Score here
         const replicateHeader = ['ReplicateNumber'];
-        const trailingHeaders = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp'];
+        const trailingHeaders = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'ScoreTimestamp']; // Score removed from this list
         
-        const csvHeader = [...leadingHeaders, ...metadataHeaders, ...replicateHeader, ...trailingHeaders];
+        const csvHeader = [...leadingHeaders, ...metadataHeaders, ...scoreHeader, ...replicateHeader, ...trailingHeaders];
     
-        // Generate CSV rows with parsed & named metadata in the new order
+        // Generate CSV rows with the new column order
         const csvRows = S.images.map(img => {
             const scoreData = S.scores[img.name] || {};
             
@@ -1106,8 +1106,9 @@ document.getElementById('downloadScores').onclick = async () => {
             const allParts = [...rowParts, ...colParts];
             const paddedParts = [...allParts, ...Array(maxTotalParts - allParts.length).fill('')];
 
+            const scoreDataValue = [scoreData.score || '']; // Moved Score data here
+
             const replicateData = [img.replicateNumber];
-            const AssnScoreData = [scoreData.score || ''];
 
             const trailingData = [
                 scorerName, 
@@ -1115,10 +1116,10 @@ document.getElementById('downloadScores').onclick = async () => {
                 img.filePath, 
                 img.originalFileName, 
                 img.name,
-                scoreData.timestamp || ''
+                scoreData.timestamp || '' // Score data removed from this list
             ];
     
-            const finalRowArray = [...leadingData, ...paddedParts, ...AssnScoreData, ...replicateData, ...trailingData];
+            const finalRowArray = [...leadingData, ...paddedParts, ...scoreDataValue, ...replicateData, ...trailingData];
             
             return finalRowArray.map(field => {
                 const fieldStr = String(field);
@@ -1200,6 +1201,7 @@ document.getElementById('downloadScores').onclick = async () => {
         alert("An unexpected error occurred while preparing the download. Please check the developer console (F12) for more details.");
     }
 };
+
 
 document.getElementById('setScores').onclick = () => {
   const customScoresInput = document.getElementById('customScores').value.trim();
