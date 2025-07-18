@@ -5,206 +5,208 @@
 <title>Stress Assay Tools</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  body{margin:0;font-family:Arial,Helvetica,sans-serif; color: #333;}
-  #tabs{display:flex;background:#333; position: sticky; top: 0; z-index: 1001;} /* Make tabs sticky */
-  #tabs button{flex:1;padding:12px 0;border:none;font-size:16px;color:#fff;background:#333;cursor:pointer; transition: background-color 0.3s;}
-  #tabs button.active,#tabs button:hover{background:#555}
-  .tabContent{display:none; padding: 15px; border: 1px solid #ddd; border-top: none; background-color: #fff;}
-  
-  #container{
-    display:flex; 
-  }
+  body{margin:0;font-family:Arial,Helvetica,sans-serif; color: #333;}
+  #tabs{display:flex;background:#333; position: sticky; top: 0; z-index: 1001;} /* Make tabs sticky */
+  #tabs button{flex:1;padding:12px 0;border:none;font-size:16px;color:#fff;background:#333;cursor:pointer; transition: background-color 0.3s;}
+  #tabs button.active,#tabs button:hover{background:#555}
+  .tabContent{display:none; padding: 15px; border: 1px solid #ddd; border-top: none; background-color: #fff;}
+  
+  #container{
+    display:flex; 
+  }
 
-  #sidebar{
-    width:300px;
-    background:#f0f0f0;
-    display:flex;
-    flex-direction:column;
-    border-right: 1px solid #ccc;
-    position: sticky; 
-    top: 40px; /* Initial value, will be adjusted by JS */
-    height: calc(100vh - 40px); /* Initial value, will be adjusted by JS */
-    align-self: flex-start; 
-    z-index: 1000; 
-  }
-  #sidebarContent{
-    padding:18px;
-    flex-grow:1; 
-    overflow-y:auto; 
-  }
-  #sidebarContent details summary {
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 5px;
-    padding: 5px;
-    background-color: #e0e0e0;
-    border-radius: 3px;
-  }
-   #sidebarContent details[open] summary {
-    background-color: #d0d0d0;
-  }
-  #sidebarContent details ol {
-    background-color: #f9f9f9;
-    padding: 10px 10px 10px 30px; 
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 3px 3px;
-    margin-top: -5px; 
-  }
+  #sidebar{
+    width:300px;
+    background:#f0f0f0;
+    display:flex;
+    flex-direction:column;
+    border-right: 1px solid #ccc;
+    position: sticky; 
+    top: 40px; /* Initial value, will be adjusted by JS */
+    height: calc(100vh - 40px); /* Initial value, will be adjusted by JS */
+    align-self: flex-start; 
+    z-index: 1000; 
+  }
+  #sidebarContent{
+    padding:18px;
+    flex-grow:1; 
+    overflow-y:auto; 
+  }
+  #sidebarContent details summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+  }
+   #sidebarContent details[open] summary {
+    background-color: #d0d0d0;
+  }
+  #sidebarContent details ol, #sidebarContent details div {
+    background-color: #f9f9f9;
+    padding: 10px 10px 10px 30px; 
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    margin-top: -5px; 
+    padding-left: 15px;
+  }
+ #sidebarContent details div { padding-left: 10px; }
 
 
-  #sidebarFooter{
-    padding:16px;
-    border-top:1px solid #ccc; 
-    background-color: #e9e9e9;
-  }
+  #sidebarFooter{
+    padding:16px;
+    border-top:1px solid #ccc; 
+    background-color: #e9e9e9;
+  }
 
-  #mainContent{
-    flex:1;
-    background-color: #f9f9f9;
-    display: flex; 
-    flex-direction: column; 
-    max-height: calc(100vh - 40px); /* Adjust based on actual tabs height */
-  }
-  #paginationControls{
-    margin-bottom:0; 
-    text-align: center;
-    padding: 10px 18px; 
-    background-color: #f0f0f0; 
-    border-bottom: 1px solid #ccc; 
-    /* Sticky positioning */
-    position: sticky;
-    top: 0; /* Stick to the top of the mainContent container */
-    z-index: 999; /* Ensure it's above the grid */
-  }
-  #paginationControls button { margin: 0 5px; padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;}
-  #paginationControls button:disabled { background-color: #ccc; cursor: not-allowed;}
-  
-  #imageGridContainer { /* Container for the grid to allow scrolling */
-      flex-grow: 1; /* Takes remaining space */
-      overflow-y: auto; /* Allows grid to scroll */
-      padding: 18px; /* Restore padding */
-  }
-  #imageGrid{display:flex;flex-wrap:wrap; gap: 10px; } /* Grid itself */
+  #mainContent{
+    flex:1;
+    background-color: #f9f9f9;
+    display: flex; 
+    flex-direction: column; 
+    max-height: calc(100vh - 40px); /* Adjust based on actual tabs height */
+  }
+  #paginationControls{
+    margin-bottom:0; 
+    text-align: center;
+    padding: 10px 18px; 
+    background-color: #f0f0f0; 
+    border-bottom: 1px solid #ccc; 
+    /* Sticky positioning */
+    position: sticky;
+    top: 0; /* Stick to the top of the mainContent container */
+    z-index: 999; /* Ensure it's above the grid */
+  }
+  #paginationControls button { margin: 0 5px; padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;}
+  #paginationControls button:disabled { background-color: #ccc; cursor: not-allowed;}
+  
+  #imageGridContainer { /* Container for the grid to allow scrolling */
+      flex-grow: 1; /* Takes remaining space */
+      overflow-y: auto; /* Allows grid to scroll */
+      padding: 18px; /* Restore padding */
+  }
+  #imageGrid{display:flex;flex-wrap:wrap; gap: 10px; } /* Grid itself */
 
-  .imageItem{margin:0;position:relative; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
-  .imageItem img{width:140px;height:140px; object-fit: cover; border:3px solid #000;cursor:pointer;transition:transform .2s ease-in-out, border-color 0.3s; border-radius: 4px;}
-  .imageItem img:hover{transform: scale(1.05);}
-  .scoreOverlay{position:absolute;bottom:4px;left:4px;padding:3px 6px;background:rgba(255,255,255,0.9);font-size:12px; border-radius: 3px; color: #000; font-weight: bold;}
-  
-  textarea, input[type="text"], input[type="number"], select {
-    width: calc(100% - 12px); 
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  button:hover { background-color: #0056b3; }
-  button:disabled { background-color: #ccc; cursor: not-allowed; }
-  label { display: block; margin-bottom: 5px; font-weight: bold;}
-  h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px; margin-top:0;}
-  ol { padding-left: 20px; margin-top: 5px;}
-  hr { border: 0; border-top: 1px solid #ddd; margin: 15px 0; }
-  small { font-size: 0.8em; color: #555; }
-  #progressDicer { margin-top: 10px; font-style: italic; } /* Specific to Dicer tab */
+  .imageItem{margin:0;position:relative; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+  .imageItem img{width:140px;height:140px; object-fit: cover; border:3px solid #000;cursor:pointer;transition:transform .2s ease-in-out, border-color 0.3s; border-radius: 4px;}
+  .imageItem img:hover{transform: scale(1.05);}
+  .scoreOverlay{position:absolute;bottom:4px;left:4px;padding:3px 6px;background:rgba(255,255,255,0.9);font-size:12px; border-radius: 3px; color: #000; font-weight: bold;}
+  
+  textarea, input[type="text"], input[type="number"], select {
+    width: calc(100% - 12px); 
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  button:hover { background-color: #0056b3; }
+  button:disabled { background-color: #ccc; cursor: not-allowed; }
+  label { display: block; margin-bottom: 5px; font-weight: bold;}
+  h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px; margin-top:0;}
+  ol { padding-left: 20px; margin-top: 5px;}
+  hr { border: 0; border-top: 1px solid #ddd; margin: 15px 0; }
+  small { display: block; font-size: 0.8em; color: #555; margin-top: -8px; margin-bottom: 8px;}
+  #progressDicer { margin-top: 10px; font-style: italic; } /* Specific to Dicer tab */
 
-  /* Modal Styles */
-  .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1050; 
-    left: 0;
-    top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.6); 
-  }
-  .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto; 
-    padding: 25px;
-    border: 1px solid #888;
-    width: 85%; 
-    max-width: 1200px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  }
-  .close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-  }
-  .close-button:hover,
-  .close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  #resultsDisplayContainer {
-    display: flex;
-    flex-wrap: wrap; 
-    gap: 20px; 
-    max-height: 55vh; 
-    overflow-y: auto;
-    margin-top: 15px;
-    padding: 10px;
-    border: 1px solid #eee;
-    background-color: #f9f9f9;
-  }
-  .score-column {
-    flex: 1; 
-    min-width: 150px; 
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-  }
-  .score-column h3 {
-    margin-top: 0;
-    font-size: 1.1em;
-    color: #007bff;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
-  }
-  .result-image-item img {
-    width: 80px; 
-    height: 80px;
-    object-fit: cover;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    margin: 3px;
-  }
-  #summaryStatsContainer table {
-    width: 100%;
-    margin-top: 10px; 
-    border-collapse: collapse;
-  }
-  #summaryStatsContainer th, #summaryStatsContainer td {
-    border: 1px solid #ddd;
-    padding: 6px; 
-    text-align: left;
-    font-size: 0.9em;
-  }
-  #summaryStatsContainer th {
-    background-color: #f2f2f2;
-  }
-  .kappa-info {
-    font-size: 0.85em;
-    margin-top: 5px;
-    color: #555;
-  }
+  /* Modal Styles */
+  .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1050; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.6); 
+  }
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; 
+    padding: 25px;
+    border: 1px solid #888;
+    width: 85%; 
+    max-width: 1200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  .close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  .close-button:hover,
+  .close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  #resultsDisplayContainer {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px; 
+    max-height: 55vh; 
+    overflow-y: auto;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+  }
+  .score-column {
+    flex: 1; 
+    min-width: 150px; 
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+  }
+  .score-column h3 {
+    margin-top: 0;
+    font-size: 1.1em;
+    color: #007bff;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+  }
+  .result-image-item img {
+    width: 80px; 
+    height: 80px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin: 3px;
+  }
+  #summaryStatsContainer table {
+    width: 100%;
+    margin-top: 10px; 
+    border-collapse: collapse;
+  }
+  #summaryStatsContainer th, #summaryStatsContainer td {
+    border: 1px solid #ddd;
+    padding: 6px; 
+    text-align: left;
+    font-size: 0.9em;
+  }
+  #summaryStatsContainer th {
+    background-color: #f2f2f2;
+  }
+  .kappa-info {
+    font-size: 0.85em;
+    margin-top: 5px;
+    color: #555;
+  }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -212,265 +214,293 @@
 </head>
 <body>
 <div id="tabs">
-  <button class="tablink active" onclick="openTab(event,'ImageCropper')">Image Grid Dicer</button> 
-  <button class="tablink" onclick="openTab(event,'ScoringApp')">Stress Assay Scoring</button>
+  <button class="tablink active" onclick="openTab(event,'ImageCropper')">Image Grid Dicer</button> 
+  <button class="tablink" onclick="openTab(event,'ScoringApp')">Stress Assay Scoring</button>
 </div>
 
-<div id="ScoringApp" class="tabContent"> 
-  <div id="container">
-    <div id="sidebar">
-      <div id="sidebarContent">
-        <h2>Stress Assay Scoring App</h2>
+<div id="ScoringApp" class="tabContent"> 
+  <div id="container">
+    <div id="sidebar">
+      <div id="sidebarContent">
+        <h2>Stress Assay Scoring App</h2>
+        <details>
+            <summary>Show/Hide Instructions</summary>
+            <ol>
+                <li>Upload well images (select folder).</li>
+                <li>Enter your <strong>Scorer Name/Initials</strong>.</li>
+                <li>(Optional) Define <strong>Custom Scores</strong> (e.g., 0:Low,1:Med,2:High).</li>
+                <li>(Optional) Adjust <strong>Replication Factor</strong>.</li>
+                <li>(Optional) Set <strong>Advanced Output Options</strong> for the final CSV file.</li>
+                <li>Click <strong>Load Images</strong> to prepare images for scoring.</li>
+                <li>Select a score & click on an image to assign it.</li>
+                <li>Click <strong>Finish & View Results</strong> for a summary.</li>
+                <li>Click <strong>Download Scores & Mosaics</strong> to get all your data.</li>
+            </ol>
+        </details>
+        <hr>
+        <label for="fileInput">1. Upload well images (folder):</label>
+        <input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.tif,.tiff" multiple webkitdirectory>
+        
+        <label for="scorerName">2. Scorer name:</label>
+        <input id="scorerName" type="text" placeholder="Your initials">
+        
+        <label for="customScores">3. (Optional) Custom scores:</label> 
+        <div style="display: flex;">
+            <input id="customScores" type="text" style="flex-grow: 1; margin-right: 5px;" placeholder="e.g., 0:Poor,1:Fair,2:Good"> <button id="setScores" style="padding: 8px 10px;">Set</button>
+        </div>
+        
+        <label for="replicationFactor">4. (Optional) Replication factor:</label>
+        <input id="replicationFactor" type="number" value="2" min="1" step="0.1">
+
+        <hr>
         <details>
-            <summary>Show/Hide Instructions</summary>
-            <ol>
-                <li>Upload well images (select folder). Images should be in subfolders if they represent different plates/experiments.</li>
-                <li>Enter your <strong>Scorer Name/Initials</strong>.</li>
-                <li>(Optional) Define <strong>Custom Scores</strong> (e.g., 0:Low,1:Med,2:High). Click "Set".</li>
-                <li>(Optional) Adjust <strong>Replication Factor</strong> (default is 2).</li>
-                <li>Click <strong>Load Images</strong> to prepare images for scoring. Images will be randomized and may be rotated for blinding.</li>
-                <li>Select a score from the dropdown in the panel below.</li>
-                <li>Click on an image thumbnail in the main grid to assign the selected score.</li>
-                <li>Use <strong>Prev/Next Page</strong> buttons (now sticky at top) to navigate replicates if applicable.</li>
-                <li>Click <strong>Finish & View Results</strong> for a summary and QC.</li>
-                <li>Click <strong>Download Scores & Mosaic</strong> to get all data. Mosaics (one per plate, with informative row labels) will be in a 'plate_mosaics' subfolder in the ZIP and are unrotated.</li>
-            </ol>
+            <summary>5. (Optional) Advanced Output Options</summary>
+            <div>
+                <label for="csvColNames" style="margin-top: 10px;">CSV Metadata Columns:</label>
+                <small>Comma-separated names for parsed metadata parts from your filenames.</small>
+                <input id="csvColNames" type="text" placeholder="e.g., Strain,Condition,Concentration">
+                
+                <label for="csvDelimiter">Metadata Delimiter:</label>
+                <small>Character(s) used to split labels (e.g., `_` or `.-`).</small>
+                <input id="csvDelimiter" type="text" value="_">
+            </div>
         </details>
         <hr>
-        <label for="fileInput">1. Upload well images (folder):</label>
-        <input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.tif,.tiff" multiple webkitdirectory>
-        
-        <label for="scorerName">2. Scorer name:</label>
-        <input id="scorerName" type="text" placeholder="Your initials">
-        
-        <label for="customScores">3. (Optional) Custom scores <small>(e.g., 0: Poor,1: Fair,2: Good)</small>:</label> <div style="display: flex;">
-            <input id="customScores" type="text" style="flex-grow: 1; margin-right: 5px;" placeholder="e.g., 0: Poor,1: Fair,2: Good"> <button id="setScores" style="padding: 8px 10px;">Set</button>
-        </div>
-        
-        <label for="replicationFactor">4. (Optional) Replication factor:</label>
-        <input id="replicationFactor" type="number" value="2" min="1" step="0.1">
-        
-        <button id="loadImages" style="width: 100%; margin-top: 10px;">5. Load Images for Scoring</button>
-      </div>
-      <div id="sidebarFooter">
-        <label for="scoreSelector">6. Select score & Click Image to Assign:</label>
-        <select id="scoreSelector"></select>
-        <button id="finishResultsButton" style="width: 100%; margin-top: 10px; background-color: #28a745;">Finish & View Results</button>
-        <button id="downloadScores" style="width: 100%; margin-top: 10px;">Download Scores & Mosaics</button>
-      </div>
-    </div>
-    <div id="mainContent">
-      <div id="paginationControls" style="display:none;">
-        <button id="prevPage">◀ Prev Page</button>
-        <span id="pageInfo"></span>
-        <button id="nextPage">Next Page ▶</button>
-      </div>
-      <div id="imageGridContainer">
-          <div id="imageGrid"></div>
-      </div>
-    </div>
-  </div>
+        
+        <button id="loadImages" style="width: 100%; margin-top: 10px;">6. Load Images for Scoring</button>
+      </div>
+      <div id="sidebarFooter">
+        <label for="scoreSelector">7. Select score & Click Image to Assign:</label>
+        <select id="scoreSelector"></select>
+        <button id="finishResultsButton" style="width: 100%; margin-top: 10px; background-color: #28a745;">Finish & View Results</button>
+        <button id="downloadScores" style="width: 100%; margin-top: 10px;">Download Scores & Mosaics</button>
+      </div>
+    </div>
+    <div id="mainContent">
+      <div id="paginationControls" style="display:none;">
+        <button id="prevPage">◀ Prev Page</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage">Next Page ▶</button>
+      </div>
+      <div id="imageGridContainer">
+          <div id="imageGrid"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="ImageCropper" class="tabContent" style="display:block;"> 
-  <h2>Image Grid Dicer</h2>
-  <p>This tool slices plate photographs into individual well images (JPG format) based on your specified grid and labels. These well images (often in subfolders per original plate photo) can then be uploaded to the Scoring App.</p>
-  <label for="imageFilesDicer">Upload plate photo(s):</label>
-  <input id="imageFilesDicer" type="file" accept="image/*" multiple>
-  
-  <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-    <div style="flex: 1;">
-      <label for="rowsDicer">Rows:</label>
-      <input id="rowsDicer" type="number" value="5">
-    </div>
-    <div style="flex: 1;">
-      <label for="colsDicer">Cols:</label>
-      <input id="colsDicer" type="number" value="12">
-    </div>
-  </div>
-  
-  <label for="rowLabelsDicer">Row labels (comma-separated):</label>
-  <textarea id="rowLabelsDicer">Mock,0.4M.NaCl,5pctEtOH,0.4mMH2O2,37cHeat</textarea>
-  
-  <label for="colLabelsDicer">Column labels (comma-separated):</label>
-  <textarea id="colLabelsDicer">0mMH2O2,0.75mMH2O2,1mMH2O2,1.25mMH2O2,1.5mMH2O2,1.75mMH2O2,2mMH2O2,2.5mMH2O2,3mMH2O2,3.5mMH2O2,4mMH2O2,5mMH2O2</textarea> 
-  
-  <button id="processButtonDicer" style="width: 100%; margin-top: 10px;">Process Images</button>
-  <div id="progressDicer"></div>
-  <div id="imageContainerDicer" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;">
-      </div>
-  <button id="downloadButtonDicer" style="display:none; width: 100%; margin-top:10px;">Download Cropped Images ZIP</button>
+<div id="ImageCropper" class="tabContent" style="display:block;"> 
+  <h2>Image Grid Dicer</h2>
+  <p>This tool slices plate photographs into individual well images (JPG format) based on your specified grid and labels. These well images (often in subfolders per original plate photo) can then be uploaded to the Scoring App.</p>
+  <label for="imageFilesDicer">Upload plate photo(s):</label>
+  <input id="imageFilesDicer" type="file" accept="image/*" multiple>
+  
+  <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+    <div style="flex: 1;">
+      <label for="rowsDicer">Rows:</label>
+      <input id="rowsDicer" type="number" value="5">
+    </div>
+    <div style="flex: 1;">
+      <label for="colsDicer">Cols:</label>
+      <input id="colsDicer" type="number" value="12">
+    </div>
+  </div>
+  
+  <label for="rowLabelsDicer">Row labels (comma-separated):</label>
+  <textarea id="rowLabelsDicer">Mock,0.4M.NaCl,5pctEtOH,0.4mMH2O2,37cHeat</textarea>
+  
+  <label for="colLabelsDicer">Column labels (comma-separated):</label>
+  <textarea id="colLabelsDicer">0mMH2O2,0.75mMH2O2,1mMH2O2,1.25mMH2O2,1.5mMH2O2,1.75mMH2O2,2mMH2O2,2.5mMH2O2,3mMH2O2,3.5mMH2O2,4mMH2O2,5mMH2O2</textarea> 
+  
+  <button id="processButtonDicer" style="width: 100%; margin-top: 10px;">Process Images</button>
+  <div id="progressDicer"></div>
+  <div id="imageContainerDicer" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;">
+      </div>
+  <button id="downloadButtonDicer" style="display:none; width: 100%; margin-top:10px;">Download Cropped Images ZIP</button>
 </div>
 
 <div id="resultsModal" class="modal">
-  <div class="modal-content">
-    <span class="close-button" onclick="document.getElementById('resultsModal').style.display='none'">&times;</span>
-    <h2>Scoring Results & Summary</h2>
-    <div id="summaryStatsContainer">
-      </div>
-    <hr>
-    <h3>Images by Score Category:</h3>
-    <div id="resultsDisplayContainer">
-      </div>
-  </div>
+  <div class="modal-content">
+    <span class="close-button" onclick="document.getElementById('resultsModal').style.display='none'">&times;</span>
+    <h2>Scoring Results & Summary</h2>
+    <div id="summaryStatsContainer">
+      </div>
+    <hr>
+    <h3>Images by Score Category:</h3>
+    <div id="resultsDisplayContainer">
+      </div>
+  </div>
 </div>
 
 
 <script>
 /* TAB switch */
 function openTab(event, tabId){
-  document.querySelectorAll('.tabContent').forEach(tc => tc.style.display='none');
-  document.querySelectorAll('.tablink').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabId).style.display='block';
-  event.currentTarget.classList.add('active');
-  adjustLayoutHeights(); // Adjust height when tab changes
+  document.querySelectorAll('.tabContent').forEach(tc => tc.style.display='none');
+  document.querySelectorAll('.tablink').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(tabId).style.display='block';
+  adjustLayoutHeights(); // Adjust height when tab changes
 }
 
 // Adjust sticky sidebar and main content height
 function adjustLayoutHeights() {
-    const tabs = document.getElementById('tabs');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    if (tabs && sidebar && mainContent) {
-        const tabsHeight = tabs.offsetHeight;
-        if (tabsHeight > 0) {
-            const availableHeight = `calc(100vh - ${tabsHeight}px)`;
-            // Only adjust sidebar if it's part of the currently visible tab
-            if (document.getElementById('ScoringApp').style.display === 'block') {
-                sidebar.style.top = tabsHeight + 'px';
-                sidebar.style.height = availableHeight;
-            }
-            // Always adjust main content max height
-            mainContent.style.maxHeight = availableHeight; 
-        } else {
-            // Fallback if offsetHeight is not available immediately
-            const fallbackHeight = 'calc(100vh - 40px)';
-             if (document.getElementById('ScoringApp').style.display === 'block') {
-                sidebar.style.top = '40px'; 
-                sidebar.style.height = fallbackHeight;
-             }
-            mainContent.style.maxHeight = fallbackHeight;
-        }
-    }
+    const tabs = document.getElementById('tabs');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    if (tabs && sidebar && mainContent) {
+        const tabsHeight = tabs.offsetHeight;
+        if (tabsHeight > 0) {
+            const availableHeight = `calc(100vh - ${tabsHeight}px)`;
+            // Only adjust sidebar if it's part of the currently visible tab
+            if (document.getElementById('ScoringApp').style.display === 'block') {
+                sidebar.style.top = tabsHeight + 'px';
+                sidebar.style.height = availableHeight;
+            }
+            // Always adjust main content max height
+            mainContent.style.maxHeight = availableHeight; 
+        } else {
+            // Fallback if offsetHeight is not available immediately
+            const fallbackHeight = 'calc(100vh - 40px)';
+             if (document.getElementById('ScoringApp').style.display === 'block') {
+                sidebar.style.top = '40px'; 
+                sidebar.style.height = fallbackHeight;
+             }
+            mainContent.style.maxHeight = fallbackHeight;
+        }
+    }
 }
 document.addEventListener('DOMContentLoaded', adjustLayoutHeights);
-window.addEventListener('resize', adjustLayoutHeights); 
+window.addEventListener('resize', adjustLayoutHeights); 
 
 
 /* STATE OBJECT */
 const S = {
-  images: [], // Stores {name, data, row, col, originalFileName, filePath, plateId, rotation, replicateNumber, isReplicate}
-  scores: {}, 
-  scoreLabels: {}, 
-  scoreColors: {}, 
-  currentPage: 1,
-  totalPages: 1,
-  summaryStatisticsText: "" 
+  images: [], // Stores {name, data, row, col, originalFileName, filePath, plateId, rotation, replicateNumber, isReplicate}
+  scores: {}, 
+  scoreLabels: {}, 
+  scoreColors: {}, 
+  currentPage: 1,
+  totalPages: 1,
+  summaryStatisticsText: "" 
 };
 
 /* DEFAULT SCORES INITIALIZATION */
 function setDefaultScores(){
-  const defaultScoreValues = ['0','1','2','3','4'];
-  S.scoreLabels = {
-    '0':'0 (0-2 colonies)',
-    '1':'1 (3-10 colonies)',
-    '2':'2 (>10 colonies)',
-    '3':'3 (TNTC)', 
-    '4':'4 (Confluent)'
-  };
-  const defaultColors = ['#d33f3f', '#0066ff', '#008000', '#ee9900', '#913bff'];
-  S.scoreColors = {};
-  defaultScoreValues.forEach((score, index) => S.scoreColors[score] = defaultColors[index % defaultColors.length]);
-  
-  const scoreSelector = document.getElementById('scoreSelector');
-  scoreSelector.innerHTML = '<option value="">-- Select Score --</option>'; 
-  defaultScoreValues.forEach(score => {
-    scoreSelector.insertAdjacentHTML('beforeend', `<option value="${score}">${S.scoreLabels[score]}</option>`);
-  });
+  const defaultScoreValues = ['0','1','2','3','4'];
+  S.scoreLabels = {
+    '0':'0 (0-2 colonies)',
+    '1':'1 (3-10 colonies)',
+    '2':'2 (>10 colonies)',
+    '3':'3 (TNTC)', 
+    '4':'4 (Confluent)'
+  };
+  const defaultColors = ['#d33f3f', '#0066ff', '#008000', '#ee9900', '#913bff'];
+  S.scoreColors = {};
+  defaultScoreValues.forEach((score, index) => S.scoreColors[score] = defaultColors[index % defaultColors.length]);
+  
+  const scoreSelector = document.getElementById('scoreSelector');
+  scoreSelector.innerHTML = '<option value="">-- Select Score --</option>'; 
+  defaultScoreValues.forEach(score => {
+    scoreSelector.insertAdjacentHTML('beforeend', `<option value="${score}">${S.scoreLabels[score]}</option>`);
+  });
 }
 document.addEventListener('DOMContentLoaded', setDefaultScores);
 
 /* UTILITY FUNCTIONS */
 const fileURL = file => new Promise((resolve, reject) => {
-    const fileReader = new FileReader();
-    fileReader.onload = event => resolve(event.target.result);
-    fileReader.onerror = error => {
-        console.error("FileReader error for file:", file.name, error);
-        reject(new Error("Failed to read file: " + file.name));
-    };
-    fileReader.readAsDataURL(file);
+    const fileReader = new FileReader();
+    fileReader.onload = event => resolve(event.target.result);
+    fileReader.onerror = error => {
+        console.error("FileReader error for file:", file.name, error);
+        reject(new Error("Failed to read file: " + file.name));
+    };
+    fileReader.readAsDataURL(file);
 });
 
 const shuffle = array => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 };
 
 /**
- * Parses Row and Column identifiers from a potentially complex filename.
- * Assumes the filename structure might be like: PlateID_RowID_ColID.ext
- * Where PlateID might contain underscores and end in _RepX.
- * RowID might contain underscores.
- * ColID is assumed to be the last part after an underscore.
- * @param {string} simpleFileName - The base name of the file (e.g., "Experiment_Rep1_StrainA_ConditionB_0mM.jpg")
- * @param {string} plateId - The identifier for the plate (e.g., "Experiment_Rep1" derived from folder)
- * @returns {object} - An object { row: string|null, col: string|null }
+ * Parses a metadata label string into its constituent parts based on delimiters.
+ * @param {string} label - The label string to parse (e.g., "0.4M.NaCl" or "StrainX-ConditionY").
+ * @param {string} delimiter - A string containing all characters to use as delimiters (e.g., "_.-").
+ * @returns {string[]} An array of the label's parts.
  */
+function parseMetadataParts(label, delimiter) {
+    if (!label) return [];
+    // If no delimiter is provided, return the whole label as a single part.
+    if (!delimiter) return [label]; 
+
+    // Escape any special regex characters in the user-provided delimiter string.
+    const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Create a regex to split by one or more of any of the provided delimiter characters.
+    const regex = new RegExp(`[${escapedDelimiter}]+`);
+    
+    // Split and filter out empty strings that can result from leading/trailing delimiters.
+    return label.split(regex).filter(Boolean); 
+}
+
+
+/**
+ * Parses Row and Column identifiers from a potentially complex filename.
+ * Assumes the filename structure might be like: PlateID_RowID_ColID.ext
+ * @param {string} simpleFileName - The base name of the file (e.g., "Experiment_Rep1_StrainA_ConditionB_0mM.jpg")
+ * @param {string} plateId - The identifier for the plate (e.g., "Experiment_Rep1" derived from folder)
+ * @returns {object} - An object { row: string|null, col: string|null }
+ */
 function parseRowCol(simpleFileName, plateId) {
-    const stem = simpleFileName.replace(/\.[^.]+$/, ''); // Remove extension
+    const stem = simpleFileName.replace(/\.[^.]+$/, ''); // Remove extension
 
-    // Attempt to find the end of the plateId part within the stem.
-    let startIndexForRowCol = 0; 
+    // Attempt to find the end of the plateId part within the stem.
+    let startIndexForRowCol = 0; 
 
-    // Strategy 1: Use plateId if available and meaningful
-    if (plateId && plateId !== 'DefaultPlate') {
-        const plateIdIndex = stem.indexOf(plateId);
-        if (plateIdIndex === 0) { 
-            startIndexForRowCol = plateId.length;
-            if (stem[startIndexForRowCol] === '_') {
-                startIndexForRowCol++;
-            }
-        } else {
-             // Strategy 2: If plateId not found at start, look for common patterns like _RepX_ as boundary
-             // This regex looks for _Rep followed by digits, then ensures it's followed by an underscore
-             // to avoid matching _Rep at the very end.
-             const repMatch = stem.match(/_Rep\d+_/i); 
-             if (repMatch) {
-                 startIndexForRowCol = repMatch.index + repMatch[0].length;
-             }
-             // If neither works, startIndexForRowCol remains 0, parsing the whole stem
-        }
-    }
+    // Strategy 1: Use plateId if available and meaningful
+    if (plateId && plateId !== 'DefaultPlate') {
+        const plateIdIndex = stem.indexOf(plateId);
+        if (plateIdIndex === 0) { 
+            startIndexForRowCol = plateId.length;
+            if (stem[startIndexForRowCol] === '_') {
+                startIndexForRowCol++;
+            }
+        } else {
+             // Strategy 2: If plateId not found at start, look for common patterns like _RepX_ as boundary
+             const repMatch = stem.match(/_Rep\d+_/i); 
+             if (repMatch) {
+                 startIndexForRowCol = repMatch.index + repMatch[0].length;
+             }
+        }
+    }
 
-    const potentialRowColPart = stem.substring(startIndexForRowCol);
-    const parts = potentialRowColPart.split('_').filter(Boolean);
+    const potentialRowColPart = stem.substring(startIndexForRowCol);
+    const parts = potentialRowColPart.split('_').filter(Boolean);
 
-    if (parts.length >= 2) {
-        // Assume last part is column, everything before (within this segment) is row
-        const col = parts.pop().trim();
-        const row = parts.join('_').trim();
-         if (row && col) { // Check if both parts are non-empty
-            // console.log(`Parsed: ${simpleFileName} -> Row: ${row}, Col: ${col}`);
-            return { row, col };
-        } else {
-            console.warn(`Complex parse yielded empty row or col for "${simpleFileName}" from part "${potentialRowColPart}". Falling back.`);
-        }
-    }
+    if (parts.length >= 2) {
+        // Assume last part is column, everything before (within this segment) is row
+        const col = parts.pop().trim();
+        const row = parts.join('_').trim();
+         if (row && col) { // Check if both parts are non-empty
+            return { row, col };
+        } else {
+            console.warn(`Complex parse yielded empty row or col for "${simpleFileName}" from part "${potentialRowColPart}". Falling back.`);
+        }
+    }
 
-    // Fallback: If the above logic failed, try the original simpler logic on the whole stem
-    const simpleParts = stem.split('_').filter(Boolean);
-    if (simpleParts.length >= 2) {
-        const col = simpleParts.pop().trim();
-        const row = simpleParts.pop().trim();
-        console.warn(`Complex parse failed for "${simpleFileName}", falling back to simple parse: row=${row}, col=${col}`);
-        return { row, col };
-    }
+    // Fallback: If the above logic failed, try the original simpler logic on the whole stem
+    const simpleParts = stem.split('_').filter(Boolean);
+    if (simpleParts.length >= 2) {
+        const col = simpleParts.pop().trim();
+        const row = simpleParts.pop().trim();
+        console.warn(`Complex parse failed for "${simpleFileName}", falling back to simple parse: row=${row}, col=${col}`);
+        return { row, col };
+    }
 
-    // Final fallback
-    console.error(`Could not parse row/col from "${simpleFileName}" (PlateID: ${plateId})`);
-    return { row: null, col: null };
+    // Final fallback
+    console.error(`Could not parse row/col from "${simpleFileName}" (PlateID: ${plateId})`);
+    return { row: null, col: null };
 }
 
 
@@ -478,161 +508,161 @@ const isDefaultScoreSet = () => Object.keys(S.scoreLabels).length === 5 && S.sco
 
 /* SCORING APP LOGIC */
 document.getElementById('loadImages').onclick = async () => {
-  const fileInput = document.getElementById('fileInput');
-  const files = [...fileInput.files];
-  if (!files.length) {
-    alert('Please upload images first.');
-    return;
-  }
-  if (!document.getElementById('scorerName').value.trim()) {
-    alert('Please enter a scorer name.');
-    return;
-  }
+  const fileInput = document.getElementById('fileInput');
+  const files = [...fileInput.files];
+  if (!files.length) {
+    alert('Please upload images first.');
+    return;
+  }
+  if (!document.getElementById('scorerName').value.trim()) {
+    alert('Please enter a scorer name.');
+    return;
+  }
 
-  S.images = [];
-  S.scores = {};
-  S.currentPage = 1;
-  const replicationFactor = parseFloat(document.getElementById('replicationFactor').value) || 2; 
+  S.images = [];
+  S.scores = {};
+  S.currentPage = 1;
+  const replicationFactor = parseFloat(document.getElementById('replicationFactor').value) || 2; 
 
-  for (const file of files) {
-    if (!/\.(jpg|jpeg|png|tif|tiff)$/i.test(file.name)) continue; 
-    if (!file.webkitRelativePath && files.length > 0 && files.some(f => f.webkitRelativePath)) { 
-        console.warn("Mixed folder/file upload detected. File without path:", file.name, ". Plate ID might be inconsistent.");
-    }
-    try {
-      const dataUrl = await fileURL(file); 
-      const filePath = file.webkitRelativePath || file.name; 
-      const pathParts = filePath.split('/');
-      const originalFileName = pathParts.pop(); 
-      const plateId = pathParts.length > 0 ? pathParts.join('/') : 'DefaultPlate'; 
+  for (const file of files) {
+    if (!/\.(jpg|jpeg|png|tif|tiff)$/i.test(file.name)) continue; 
+    if (!file.webkitRelativePath && files.length > 0 && files.some(f => f.webkitRelativePath)) { 
+        console.warn("Mixed folder/file upload detected. File without path:", file.name, ". Plate ID might be inconsistent.");
+    }
+    try {
+      const dataUrl = await fileURL(file); 
+      const filePath = file.webkitRelativePath || file.name; 
+      const pathParts = filePath.split('/');
+      const originalFileName = pathParts.pop(); 
+      const plateId = pathParts.length > 0 ? pathParts.join('/') : 'DefaultPlate'; 
 
-      const {row, col} = parseRowCol(originalFileName, plateId); 
+      const {row, col} = parseRowCol(originalFileName, plateId); 
 
-      S.images.push({
-        name: filePath, 
-        data: dataUrl,
-        row: row, 
-        col: col, 
-        originalFileName: originalFileName, 
-        filePath: filePath,
-        plateId: plateId,
-        rotation: Math.random() < 0.5 ? 0 : 180, 
-        replicateNumber: 1, 
-        isReplicate: false
-      });
-    } catch (error) {
-      console.error("Skipping file due to read error:", file.name, error);
-      alert(`Could not load file: ${file.name}. It might be corrupted. Error: ${error.message}`);
-    }
-  }
+      S.images.push({
+        name: filePath, 
+        data: dataUrl,
+        row: row, 
+        col: col, 
+        originalFileName: originalFileName, 
+        filePath: filePath,
+        plateId: plateId,
+        rotation: Math.random() < 0.5 ? 0 : 180, 
+        replicateNumber: 1, 
+        isReplicate: false
+      });
+    } catch (error) {
+      console.error("Skipping file due to read error:", file.name, error);
+      alert(`Could not load file: ${file.name}. It might be corrupted. Error: ${error.message}`);
+    }
+  }
 
-  if (!S.images.length) {
-    alert('No valid images were loaded. Please check file types and integrity.');
-    return;
-  }
+  if (!S.images.length) {
+    alert('No valid images were loaded. Please check file types and integrity.');
+    return;
+  }
 
-  replicateImages(replicationFactor); 
-  shuffle(S.images); 
-  sortThumbnails(); 
-  renderThumbnails(); 
-  document.getElementById('paginationControls').style.display = S.totalPages > 1 ? 'block' : 'none';
+  replicateImages(replicationFactor); 
+  shuffle(S.images); 
+  sortThumbnails(); 
+  renderThumbnails(); 
+  document.getElementById('paginationControls').style.display = S.totalPages > 1 ? 'block' : 'none';
 };
 
 function replicateImages(factor) {
-  const baseOriginalImages = [...S.images]; 
-  const replicatedImages = [];
-  const wholeReplicates = Math.floor(factor);
-  const fractionalReplicate = factor - wholeReplicates;
+  const baseOriginalImages = [...S.images]; 
+  const replicatedImages = [];
+  const wholeReplicates = Math.floor(factor);
+  const fractionalReplicate = factor - wholeReplicates;
 
-  for (let n = 1; n <= wholeReplicates; n++) {
-    baseOriginalImages.forEach(img => { 
-      replicatedImages.push({
-        ...img, 
-        replicateNumber: n,
-        isReplicate: n > 1, 
-        name: n === 1 ? img.filePath : `${img.filePath.replace(/\.[^.]+$/, '')}_rep${n-1}.${img.originalFileName.split('.').pop()}` 
-      });
-    });
-  }
-  
-  if (fractionalReplicate > 0) {
-    const numExtraImages = Math.round(baseOriginalImages.length * fractionalReplicate);
-    const shuffledOriginalsForFractional = [...baseOriginalImages]; 
-    shuffle(shuffledOriginalsForFractional); 
+  for (let n = 1; n <= wholeReplicates; n++) {
+    baseOriginalImages.forEach(img => { 
+      replicatedImages.push({
+        ...img, 
+        replicateNumber: n,
+        isReplicate: n > 1, 
+        name: n === 1 ? img.filePath : `${img.filePath.replace(/\.[^.]+$/, '')}_rep${n-1}.${img.originalFileName.split('.').pop()}` 
+      });
+    });
+  }
+  
+  if (fractionalReplicate > 0) {
+    const numExtraImages = Math.round(baseOriginalImages.length * fractionalReplicate);
+    const shuffledOriginalsForFractional = [...baseOriginalImages]; 
+    shuffle(shuffledOriginalsForFractional); 
 
-    shuffledOriginalsForFractional.slice(0, numExtraImages).forEach(img => {
-      replicatedImages.push({
-        ...img,
-        replicateNumber: wholeReplicates + 1, 
-        isReplicate: true,
-        name: `${img.filePath.replace(/\.[^.]+$/, '')}_rep${wholeReplicates}.${img.originalFileName.split('.').pop()}`
-      });
-    });
-  }
-  S.images = replicatedImages;
-  if (S.images.length > 0) {
-    S.totalPages = Math.max(1, ...S.images.map(img => img.replicateNumber)); 
-  } else {
-    S.totalPages = 1;
-  }
+    shuffledOriginalsForFractional.slice(0, numExtraImages).forEach(img => {
+      replicatedImages.push({
+        ...img,
+        replicateNumber: wholeReplicates + 1, 
+        isReplicate: true,
+        name: `${img.filePath.replace(/\.[^.]+$/, '')}_rep${wholeReplicates}.${img.originalFileName.split('.').pop()}`
+      });
+    });
+  }
+  S.images = replicatedImages;
+  if (S.images.length > 0) {
+    S.totalPages = Math.max(1, ...S.images.map(img => img.replicateNumber)); 
+  } else {
+    S.totalPages = 1;
+  }
 }
 
 function sortThumbnails() {
-  S.images.sort((a, b) => {
-    const aIsScored = !!S.scores[a.name];
-    const bIsScored = !!S.scores[b.name];
-    if (aIsScored !== bIsScored) return aIsScored - bIsScored; 
-    if (aIsScored) { 
-        const scoreA = parseFloat(S.scores[a.name].score);
-        const scoreB = parseFloat(S.scores[b.name].score);
-        if (!isNaN(scoreA) && !isNaN(scoreB)) return scoreA - scoreB;
-        return String(S.scores[a.name].score).localeCompare(String(S.scores[b.name].score));
-    }
-    return 0; 
-  });
+  S.images.sort((a, b) => {
+    const aIsScored = !!S.scores[a.name];
+    const bIsScored = !!S.scores[b.name];
+    if (aIsScored !== bIsScored) return aIsScored - bIsScored; 
+    if (aIsScored) { 
+        const scoreA = parseFloat(S.scores[a.name].score);
+        const scoreB = parseFloat(S.scores[b.name].score);
+        if (!isNaN(scoreA) && !isNaN(scoreB)) return scoreA - scoreB;
+        return String(S.scores[a.name].score).localeCompare(String(S.scores[b.name].score));
+    }
+    return 0; 
+  });
 }
 
 
 function renderThumbnails() {
-  const grid = document.getElementById('imageGrid');
-  grid.innerHTML = ''; 
-  
-  const imagesForCurrentPage = S.images.filter(img => img.replicateNumber === S.currentPage);
+  const grid = document.getElementById('imageGrid');
+  grid.innerHTML = ''; 
+  
+  const imagesForCurrentPage = S.images.filter(img => img.replicateNumber === S.currentPage);
 
-  imagesForCurrentPage.forEach(imgItem => {
-    const box = document.createElement('div');
-    box.className = 'imageItem';
-    
-    const imgElement = new Image();
-    imgElement.src = imgItem.data;
-    imgElement.style.transform = `rotate(${imgItem.rotation}deg)`; 
-    
-    if (S.scores[imgItem.name]) {
-      imgElement.style.borderColor = S.scoreColors[S.scores[imgItem.name].score] || '#000'; 
-    }
-    
-    imgElement.onclick = () => {
-      const selectedScore = document.getElementById('scoreSelector').value;
-      if (!selectedScore) return; 
-      S.scores[imgItem.name] = {score: selectedScore, timestamp: new Date().toISOString()}; 
-      sortThumbnails(); 
-      renderThumbnails(); 
-    };
-    box.appendChild(imgElement);
-    
-    if (S.scores[imgItem.name]) {
-      const overlay = document.createElement('div');
-      overlay.className = 'scoreOverlay';
-      overlay.textContent = `Score: ${S.scoreLabels[S.scores[imgItem.name].score] || S.scores[imgItem.name].score}`;
-      box.appendChild(overlay);
-    }
-    grid.appendChild(box);
-  });
-  
-  document.getElementById('pageInfo').textContent = `Page ${S.currentPage} / ${S.totalPages}`;
-  document.getElementById('prevPage').disabled = S.currentPage === 1;
-  document.getElementById('nextPage').disabled = S.currentPage === S.totalPages;
-  document.getElementById('paginationControls').style.display = S.totalPages > 1 ? 'block' : 'none';
+  imagesForCurrentPage.forEach(imgItem => {
+    const box = document.createElement('div');
+    box.className = 'imageItem';
+    
+    const imgElement = new Image();
+    imgElement.src = imgItem.data;
+    imgElement.style.transform = `rotate(${imgItem.rotation}deg)`; 
+    
+    if (S.scores[imgItem.name]) {
+      imgElement.style.borderColor = S.scoreColors[S.scores[imgItem.name].score] || '#000'; 
+    }
+    
+    imgElement.onclick = () => {
+      const selectedScore = document.getElementById('scoreSelector').value;
+      if (!selectedScore) return; 
+      S.scores[imgItem.name] = {score: selectedScore, timestamp: new Date().toISOString()}; 
+      sortThumbnails(); 
+      renderThumbnails(); 
+    };
+    box.appendChild(imgElement);
+    
+    if (S.scores[imgItem.name]) {
+      const overlay = document.createElement('div');
+      overlay.className = 'scoreOverlay';
+      overlay.textContent = `Score: ${S.scoreLabels[S.scores[imgItem.name].score] || S.scores[imgItem.name].score}`;
+      box.appendChild(overlay);
+    }
+    grid.appendChild(box);
+  });
+  
+  document.getElementById('pageInfo').textContent = `Page ${S.currentPage} / ${S.totalPages}`;
+  document.getElementById('prevPage').disabled = S.currentPage === 1;
+  document.getElementById('nextPage').disabled = S.currentPage === S.totalPages;
+  document.getElementById('paginationControls').style.display = S.totalPages > 1 ? 'block' : 'none';
 }
 
 document.getElementById('prevPage').onclick = () => { if(S.currentPage > 1){ S.currentPage--; renderThumbnails(); }};
@@ -640,505 +670,533 @@ document.getElementById('nextPage').onclick = () => { if(S.currentPage < S.total
 
 // Generates consensus scores for a specific plate's images
 function generateConsensusScoresForPlate(plateImages){
-  const wellScoresMap = {}; 
-  plateImages.forEach(img => {
-    if (!S.scores[img.name] || !img.row || !img.col) return; 
-    const key = `${img.row}_${img.col}`; 
-    (wellScoresMap[key] = wellScoresMap[key] || []).push(S.scores[img.name].score);
-  });
-  
-  const consensusOutput = {};
-  const useDefaultFormatting = isDefaultScoreSet();
-  Object.entries(wellScoresMap).forEach(([key, scoresArray]) => {
-    const uniqueScores = [...new Set(scoresArray)];
-    uniqueScores.sort((a, b) => {
-        const numA = parseFloat(a);
-        const numB = parseFloat(b);
-        // If both are numbers, sort descending
-        if (!isNaN(numA) && !isNaN(numB)) {
-            return numB - numA; 
-        }
-        // Fallback for non-numeric or mixed scores (descending string sort)
-        return String(b).localeCompare(String(a)); 
-    });
-    if (useDefaultFormatting) {
-      consensusOutput[key] = uniqueScores.join('/'); 
-    } else {
-      consensusOutput[key] = uniqueScores.map(s => S.scoreLabels[s] || s).join('/'); 
-    }
-  });
-  return consensusOutput;
+  const wellScoresMap = {}; 
+  plateImages.forEach(img => {
+    if (!S.scores[img.name] || !img.row || !img.col) return; 
+    const key = `${img.row}_${img.col}`; 
+    (wellScoresMap[key] = wellScoresMap[key] || []).push(S.scores[img.name].score);
+  });
+  
+  const consensusOutput = {};
+  const useDefaultFormatting = isDefaultScoreSet();
+  Object.entries(wellScoresMap).forEach(([key, scoresArray]) => {
+    const uniqueScores = [...new Set(scoresArray)];
+    uniqueScores.sort((a, b) => {
+        const numA = parseFloat(a);
+        const numB = parseFloat(b);
+        // If both are numbers, sort descending
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return numB - numA; 
+        }
+        // Fallback for non-numeric or mixed scores (descending string sort)
+        return String(b).localeCompare(String(a)); 
+    });
+    if (useDefaultFormatting) {
+      consensusOutput[key] = uniqueScores.join('/'); 
+    } else {
+      consensusOutput[key] = uniqueScores.map(s => S.scoreLabels[s] || s).join('/'); 
+    }
+  });
+  return consensusOutput;
 }
 
 // Creates a thumbnail map for a specific plate's images
 function createThumbnailMapForPlateMosaic(plateImages){
-  const thumbnailMap = new Map(); 
-  plateImages.forEach(imgItem => {
-    if (!imgItem.row || !imgItem.col) return; 
-    const key = `${imgItem.row}_${imgItem.col}`;
-    if (!thumbnailMap.has(key) || imgItem.replicateNumber < thumbnailMap.get(key).replicateNumber) {
-      thumbnailMap.set(key, imgItem);
-    }
-  });
-  return thumbnailMap;
+  const thumbnailMap = new Map(); 
+  plateImages.forEach(imgItem => {
+    if (!imgItem.row || !imgItem.col) return; 
+    const key = `${imgItem.row}_${imgItem.col}`;
+    if (!thumbnailMap.has(key) || imgItem.replicateNumber < thumbnailMap.get(key).replicateNumber) {
+      thumbnailMap.set(key, imgItem);
+    }
+  });
+  return thumbnailMap;
 }
 
 const loadImageForCanvas = imgSrc => new Promise((resolve, reject) => {
-    if (!imgSrc) {
-        console.error("loadImageForCanvas called with empty imgSrc");
-        return reject(new Error("Image source is empty or invalid."));
-    }
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = (errEvent) => {
-        console.error("Failed to load image data for canvas:", imgSrc.substring(0,100) + "...", errEvent);
-        reject(new Error("Image load failed for canvas."));
-    };
-    img.src = imgSrc;
+    if (!imgSrc) {
+        console.error("loadImageForCanvas called with empty imgSrc");
+        return reject(new Error("Image source is empty or invalid."));
+    }
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (errEvent) => {
+        console.error("Failed to load image data for canvas:", imgSrc.substring(0,100) + "...", errEvent);
+        reject(new Error("Image load failed for canvas."));
+    };
+    img.src = imgSrc;
 });
 
 
 async function generatePlateMosaic(rowOrder, colOrder, thumbnailMap, consensusScores, plateId, isMultiPlateBatch){
-  if (thumbnailMap.size === 0) {
-    console.warn("Thumbnail map for mosaic is empty for plate:", plateId);
-    const emptyCanvas = document.createElement('canvas'); emptyCanvas.width = 1; emptyCanvas.height = 1; 
-    return new Promise(res => emptyCanvas.toBlob(blob => res(blob), 'image/png'));
-  }
+  if (thumbnailMap.size === 0) {
+    console.warn("Thumbnail map for mosaic is empty for plate:", plateId);
+    const emptyCanvas = document.createElement('canvas'); emptyCanvas.width = 1; emptyCanvas.height = 1; 
+    return new Promise(res => emptyCanvas.toBlob(blob => res(blob), 'image/png'));
+  }
 
-  let sampleImage, imageWidth, imageHeight;
-  try {
-    const firstImageEntry = thumbnailMap.values().next().value; 
-    if (!firstImageEntry || !firstImageEntry.data) throw new Error("First image data invalid for plate: " + plateId);
-    sampleImage = await loadImageForCanvas(firstImageEntry.data);
-    imageWidth = sampleImage.width; imageHeight = sampleImage.height;
-    if (!imageWidth || !imageHeight) throw new Error("First image dimensions invalid for plate: " + plateId);
-  } catch (error) {
-    console.error("CRITICAL: Failed to load first image for mosaic dimensions (plate: " + plateId + "):", error);
-    const errorCanvas = document.createElement('canvas'); errorCanvas.width = 400; errorCanvas.height = 200;
-    const errCtx = errorCanvas.getContext('2d');
-    errCtx.fillStyle = '#FFDDDD'; errCtx.fillRect(0,0,400,200);
-    errCtx.fillStyle = '#D8000C'; errCtx.font = '16px Arial'; errCtx.textAlign = 'center';
-    errCtx.fillText('Error generating mosaic for ' + plateId, 200, 80); errCtx.fillText('Cannot load sample image.', 200, 110);
-    return new Promise(res => errorCanvas.toBlob(blob => res(blob), 'image/png'));
-  }
+  let sampleImage, imageWidth, imageHeight;
+  try {
+    const firstImageEntry = thumbnailMap.values().next().value; 
+    if (!firstImageEntry || !firstImageEntry.data) throw new Error("First image data invalid for plate: " + plateId);
+    sampleImage = await loadImageForCanvas(firstImageEntry.data);
+    imageWidth = sampleImage.width; imageHeight = sampleImage.height;
+    if (!imageWidth || !imageHeight) throw new Error("First image dimensions invalid for plate: " + plateId);
+  } catch (error) {
+    console.error("CRITICAL: Failed to load first image for mosaic dimensions (plate: " + plateId + "):", error);
+    const errorCanvas = document.createElement('canvas'); errorCanvas.width = 400; errorCanvas.height = 200;
+    const errCtx = errorCanvas.getContext('2d');
+    errCtx.fillStyle = '#FFDDDD'; errCtx.fillRect(0,0,400,200);
+    errCtx.fillStyle = '#D8000C'; errCtx.font = '16px Arial'; errCtx.textAlign = 'center';
+    errCtx.fillText('Error generating mosaic for ' + plateId, 200, 80); errCtx.fillText('Cannot load sample image.', 200, 110);
+    return new Promise(res => errorCanvas.toBlob(blob => res(blob), 'image/png'));
+  }
 
-  const tempCtxForTextMetrics = document.createElement('canvas').getContext('2d');
-  tempCtxForTextMetrics.font = 'bold 16px Arial'; 
-  
-  // Adjust leftMargin calculation based on the full parsed row labels
-  const leftMargin = Math.ceil(Math.max(0,...rowOrder.map(r => {
-    return tempCtxForTextMetrics.measureText(r || '').width; // Use the full parsed row label 'r', provide fallback
-  }))) + 30;
-  
-  const topMargin = Math.ceil(Math.max(0,...colOrder.map(c => tempCtxForTextMetrics.measureText(c || '').width))) + 40; // Fallback for col
+  const tempCtxForTextMetrics = document.createElement('canvas').getContext('2d');
+  tempCtxForTextMetrics.font = 'bold 16px Arial'; 
+  
+  // Adjust leftMargin calculation based on the full parsed row labels
+  const leftMargin = Math.ceil(Math.max(0,...rowOrder.map(r => {
+    return tempCtxForTextMetrics.measureText(r || '').width; // Use the full parsed row label 'r', provide fallback
+  }))) + 30;
+  
+  const topMargin = Math.ceil(Math.max(0,...colOrder.map(c => tempCtxForTextMetrics.measureText(c || '').width))) + 40; // Fallback for col
 
-  const mosaicCanvas = document.createElement('canvas');
-  mosaicCanvas.width = leftMargin + colOrder.length * imageWidth;
-  mosaicCanvas.height = topMargin + rowOrder.length * imageHeight;
-  const ctx = mosaicCanvas.getContext('2d');
-  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, mosaicCanvas.width, mosaicCanvas.height);
+  const mosaicCanvas = document.createElement('canvas');
+  mosaicCanvas.width = leftMargin + colOrder.length * imageWidth;
+  mosaicCanvas.height = topMargin + rowOrder.length * imageHeight;
+  const ctx = mosaicCanvas.getContext('2d');
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, mosaicCanvas.width, mosaicCanvas.height);
 
-  for (let rIdx = 0; rIdx < rowOrder.length; rIdx++) {
-    for (let cIdx = 0; cIdx < colOrder.length; cIdx++) {
-      const wellKey = `${rowOrder[rIdx]}_${colOrder[cIdx]}`; // Key uses the full parsed row/col identifiers
-      if (!thumbnailMap.has(wellKey)) continue;
-      const imgItemFromMap = thumbnailMap.get(wellKey); 
-      const destX = leftMargin + cIdx * imageWidth; const destY = topMargin + rIdx * imageHeight;
-      try {
-        const loadedImg = await loadImageForCanvas(imgItemFromMap.data); 
-        ctx.drawImage(loadedImg, destX, destY, imageWidth, imageHeight);
-        
-        const scoreText = consensusScores[wellKey] || '';
-        if (scoreText) {
-          // Increase font size: Divide by 4 instead of 5, ensure minimum is reasonable (e.g., 16)
-          const fontSize = Math.max(16, Math.floor(imageHeight / 4)); 
-          ctx.font = `bold ${fontSize}px Arial`; 
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          const textX = destX + imageWidth/2; const textY = destY + imageHeight/2;
-          ctx.strokeStyle = 'black'; 
-          // Adjust outline width slightly if needed, keep scaling for now
-          ctx.lineWidth = Math.max(1, Math.floor(fontSize / 6)); 
-          ctx.strokeText(scoreText, textX, textY); 
-          ctx.fillStyle = '#FFFF00'; 
-          ctx.fillText(scoreText, textX, textY); 
-        }
-      } catch (error) {
-          console.warn(`Mosaic: Error for well ${wellKey} on plate ${plateId}:`, error.message);
-          ctx.save(); ctx.fillStyle = '#EEEEEE'; ctx.fillRect(destX, destY, imageWidth, imageHeight);
-          ctx.strokeStyle = '#FF0000'; ctx.strokeRect(destX, destY, imageWidth, imageHeight);
-          ctx.fillStyle = '#000000'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle'; ctx.fillText('Load Err', destX + imageWidth/2, destY + imageHeight/2);
-          ctx.restore();
-      }
-    }
-  }
-  ctx.fillStyle = '#333333'; ctx.font = 'bold 16px Arial';
-  rowOrder.forEach((fullRowLabel, rIdx) => { 
-    // Display the full parsed row label
-    const displayLabel = fullRowLabel || ''; // Use full label, fallback to empty string if null
-    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText(displayLabel, leftMargin - 10, topMargin + rIdx * imageHeight + imageHeight/2);
-  });
-  colOrder.forEach((colLabel, cIdx) => {
-    ctx.save(); ctx.translate(leftMargin + cIdx * imageWidth + imageWidth/2, topMargin - 10);
-    ctx.rotate(-Math.PI/2); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(colLabel || '', 0, 0); // Fallback for colLabel
-    ctx.restore();
-  });
-  return new Promise(resolve => mosaicCanvas.toBlob(blob => resolve(blob), 'image/png'));
+  for (let rIdx = 0; rIdx < rowOrder.length; rIdx++) {
+    for (let cIdx = 0; cIdx < colOrder.length; cIdx++) {
+      const wellKey = `${rowOrder[rIdx]}_${colOrder[cIdx]}`; // Key uses the full parsed row/col identifiers
+      if (!thumbnailMap.has(wellKey)) continue;
+      const imgItemFromMap = thumbnailMap.get(wellKey); 
+      const destX = leftMargin + cIdx * imageWidth; const destY = topMargin + rIdx * imageHeight;
+      try {
+        const loadedImg = await loadImageForCanvas(imgItemFromMap.data); 
+        ctx.drawImage(loadedImg, destX, destY, imageWidth, imageHeight);
+        
+        const scoreText = consensusScores[wellKey] || '';
+        if (scoreText) {
+          // Increase font size
+          const fontSize = Math.max(16, Math.floor(imageHeight / 4)); 
+          ctx.font = `bold ${fontSize}px Arial`; 
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          const textX = destX + imageWidth/2; const textY = destY + imageHeight/2;
+          ctx.strokeStyle = 'black'; 
+          ctx.lineWidth = Math.max(1, Math.floor(fontSize / 6)); 
+          ctx.strokeText(scoreText, textX, textY); 
+          ctx.fillStyle = '#FFFF00'; 
+          ctx.fillText(scoreText, textX, textY); 
+        }
+      } catch (error) {
+          console.warn(`Mosaic: Error for well ${wellKey} on plate ${plateId}:`, error.message);
+          ctx.save(); ctx.fillStyle = '#EEEEEE'; ctx.fillRect(destX, destY, imageWidth, imageHeight);
+          ctx.strokeStyle = '#FF0000'; ctx.strokeRect(destX, destY, imageWidth, imageHeight);
+          ctx.fillStyle = '#000000'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle'; ctx.fillText('Load Err', destX + imageWidth/2, destY + imageHeight/2);
+          ctx.restore();
+      }
+    }
+  }
+  ctx.fillStyle = '#333333'; ctx.font = 'bold 16px Arial';
+  rowOrder.forEach((fullRowLabel, rIdx) => { 
+    // Display the full parsed row label
+    const displayLabel = fullRowLabel || ''; // Use full label, fallback to empty string if null
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(displayLabel, leftMargin - 10, topMargin + rIdx * imageHeight + imageHeight/2);
+  });
+  colOrder.forEach((colLabel, cIdx) => {
+    ctx.save(); ctx.translate(leftMargin + cIdx * imageWidth + imageWidth/2, topMargin - 10);
+    ctx.rotate(-Math.PI/2); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(colLabel || '', 0, 0); // Fallback for colLabel
+    ctx.restore();
+  });
+  return new Promise(resolve => mosaicCanvas.toBlob(blob => resolve(blob), 'image/png'));
 }
 
 
 // --- COHEN'S KAPPA CALCULATION ---
 function getScoreCategoriesAndMap(allDefinedScoreLabels) {
-    const uniqueScores = new Set(Object.keys(allDefinedScoreLabels));
-    const sortedCategories = Array.from(uniqueScores).sort((a,b) => {
-        const numA = parseFloat(a);
-        const numB = parseFloat(b);
-        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-        return String(a).localeCompare(String(b));
-    });
-    const scoreToIndex = new Map();
-    sortedCategories.forEach((score, index) => scoreToIndex.set(score, index));
-    return { scoreToIndex, numCategories: sortedCategories.length, categoryValues: sortedCategories };
+    const uniqueScores = new Set(Object.keys(allDefinedScoreLabels));
+    const sortedCategories = Array.from(uniqueScores).sort((a,b) => {
+        const numA = parseFloat(a);
+        const numB = parseFloat(b);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return String(a).localeCompare(String(b));
+    });
+    const scoreToIndex = new Map();
+    sortedCategories.forEach((score, index) => scoreToIndex.set(score, index));
+    return { scoreToIndex, numCategories: sortedCategories.length, categoryValues: sortedCategories };
 }
 
 function calculateCohenKappa(scorePairs, allDefinedScoreLabels) {
-    if (!scorePairs || scorePairs.length === 0) {
-        return { kappa: NaN, interpretation: "Not enough paired scores." };
-    }
+    if (!scorePairs || scorePairs.length === 0) {
+        return { kappa: NaN, interpretation: "Not enough paired scores." };
+    }
 
-    const { scoreToIndex, numCategories, categoryValues } = getScoreCategoriesAndMap(allDefinedScoreLabels);
+    const { scoreToIndex, numCategories, categoryValues } = getScoreCategoriesAndMap(allDefinedScoreLabels);
 
-    if (numCategories === 0) return { kappa: NaN, interpretation: "No score categories defined."};
-    if (numCategories <= 1 && scorePairs.length > 0) { 
-         const allSame = scorePairs.every(p => p[0] === p[1] && scoreToIndex.has(p[0]));
-         return { kappa: allSame ? 1.0 : NaN, interpretation: allSame ? "Perfect agreement (single category)." : "Data error in single category." };
-    }
-    if (numCategories <= 1) return { kappa: 1.0, interpretation: "Perfect agreement (single category)." };
+    if (numCategories === 0) return { kappa: NaN, interpretation: "No score categories defined."};
+    if (numCategories <= 1) return { kappa: 1.0, interpretation: "Perfect agreement (single category)." };
 
 
-    const validScorePairs = scorePairs.filter(pair => scoreToIndex.has(String(pair[0])) && scoreToIndex.has(String(pair[1])));
-    if (validScorePairs.length === 0) {
-        return { kappa: NaN, interpretation: "No valid paired scores for defined categories." };
-    }
-    const totalObservations = validScorePairs.length;
+    const validScorePairs = scorePairs.filter(pair => scoreToIndex.has(String(pair[0])) && scoreToIndex.has(String(pair[1])));
+    if (validScorePairs.length === 0) {
+        return { kappa: NaN, interpretation: "No valid paired scores for defined categories." };
+    }
+    const totalObservations = validScorePairs.length;
 
-    const observedMatrix = Array(numCategories).fill(null).map(() => Array(numCategories).fill(0));
-    validScorePairs.forEach(pair => {
-        observedMatrix[scoreToIndex.get(String(pair[0]))][scoreToIndex.get(String(pair[1]))]++;
-    });
+    const observedMatrix = Array(numCategories).fill(null).map(() => Array(numCategories).fill(0));
+    validScorePairs.forEach(pair => {
+        observedMatrix[scoreToIndex.get(String(pair[0]))][scoreToIndex.get(String(pair[1]))]++;
+    });
 
-    const proportionMatrix = observedMatrix.map(row => row.map(cell => cell / totalObservations));
-    const rater1Marginals = Array(numCategories).fill(0); 
-    const rater2Marginals = Array(numCategories).fill(0); 
-    for (let i = 0; i < numCategories; i++) {
-        for (let j = 0; j < numCategories; j++) {
-            rater1Marginals[i] += proportionMatrix[i][j];
-            rater2Marginals[j] += proportionMatrix[i][j];
-        }
-    }
+    const proportionMatrix = observedMatrix.map(row => row.map(cell => cell / totalObservations));
+    const rater1Marginals = Array(numCategories).fill(0); 
+    const rater2Marginals = Array(numCategories).fill(0); 
+    for (let i = 0; i < numCategories; i++) {
+        for (let j = 0; j < numCategories; j++) {
+            rater1Marginals[i] += proportionMatrix[i][j];
+            rater2Marginals[j] += proportionMatrix[i][j];
+        }
+    }
 
-    const weightsMatrix = Array(numCategories).fill(null).map(() => Array(numCategories).fill(0));
-    for (let i = 0; i < numCategories; i++) {
-        for (let j = 0; j < numCategories; j++) {
-            weightsMatrix[i][j] = 1.0 - Math.pow((i - j) / (numCategories - 1), 2);
-        }
-    }
+    const weightsMatrix = Array(numCategories).fill(null).map(() => Array(numCategories).fill(0));
+    for (let i = 0; i < numCategories; i++) {
+        for (let j = 0; j < numCategories; j++) {
+            weightsMatrix[i][j] = 1.0 - Math.pow((i - j) / (numCategories - 1), 2);
+        }
+    }
 
-    let po = 0;
-    let pe = 0;
-    for (let i = 0; i < numCategories; i++) {
-        for (let j = 0; j < numCategories; j++) {
-            po += weightsMatrix[i][j] * proportionMatrix[i][j];
-            pe += weightsMatrix[i][j] * rater1Marginals[i] * rater2Marginals[j];
-        }
-    }
+    let po = 0;
+    let pe = 0;
+    for (let i = 0; i < numCategories; i++) {
+        for (let j = 0; j < numCategories; j++) {
+            po += weightsMatrix[i][j] * proportionMatrix[i][j];
+            pe += weightsMatrix[i][j] * rater1Marginals[i] * rater2Marginals[j];
+        }
+    }
 
-    if (1.0 - pe === 0) { 
-        return { kappa: (po === 1.0 ? 1.0 : NaN), interpretation: (po === 1.0 ? "Perfect agreement (Pe=1)." : "Undefined (Pe=1).") };
-    }
-    const kappa = (po - pe) / (1.0 - pe);
-    return { kappa, interpretation: interpretKappa(kappa) };
+    if (1.0 - pe === 0) { 
+        return { kappa: (po === 1.0 ? 1.0 : NaN), interpretation: (po === 1.0 ? "Perfect agreement (Pe=1)." : "Undefined (Pe=1).") };
+    }
+    const kappa = (po - pe) / (1.0 - pe);
+    return { kappa, interpretation: interpretKappa(kappa) };
 }
 
 function interpretKappa(kappa) {
-    if (isNaN(kappa)) return "N/A (calculation error or insufficient data)";
-    if (kappa < 0) return "Poor agreement";
-    if (kappa === 0) return "No agreement (beyond chance)";
-    if (kappa <= 0.20) return "Slight agreement";
-    if (kappa <= 0.40) return "Fair agreement";
-    if (kappa <= 0.60) return "Moderate agreement";
-    if (kappa <= 0.80) return "Substantial agreement";
-    if (kappa <= 1.00) return "Almost perfect agreement"; 
-    return "N/A";
+    if (isNaN(kappa)) return "N/A (calculation error or insufficient data)";
+    if (kappa < 0) return "Poor agreement";
+    if (kappa === 0) return "No agreement (beyond chance)";
+    if (kappa <= 0.20) return "Slight agreement";
+    if (kappa <= 0.40) return "Fair agreement";
+    if (kappa <= 0.60) return "Moderate agreement";
+    if (kappa <= 0.80) return "Substantial agreement";
+    if (kappa <= 1.00) return "Almost perfect agreement"; 
+    return "N/A";
 }
 
 
 document.getElementById('finishResultsButton').onclick = () => {
-  if (Object.keys(S.scores).length === 0) {
-    alert("No images have been scored yet. Please score some images first.");
-    return;
-  }
-  displayResultsInModal();
-  document.getElementById('resultsModal').style.display = 'block';
+  if (Object.keys(S.scores).length === 0) {
+    alert("No images have been scored yet. Please score some images first.");
+    return;
+  }
+  displayResultsInModal();
+  document.getElementById('resultsModal').style.display = 'block';
 };
 
 function calculateSummaryAndQC() {
-    const scoreCounts = {};
-    const imagesByOriginalWellPath = {}; 
-    let totalScoredImages = 0;
+    const scoreCounts = {};
+    const imagesByOriginalWellPath = {}; 
+    let totalScoredImages = 0;
 
-    Object.keys(S.scoreLabels).forEach(scoreValue => scoreCounts[scoreValue] = 0);
-    if (Object.keys(S.scoreLabels).length === 0 && S.images.length > 0) { 
-        const uniqueScoresPresent = new Set();
-        S.images.forEach(img => { if (S.scores[img.name]) uniqueScoresPresent.add(S.scores[img.name].score); });
-        uniqueScoresPresent.forEach(s => scoreCounts[s] = 0);
-    }
+    Object.keys(S.scoreLabels).forEach(scoreValue => scoreCounts[scoreValue] = 0);
+    if (Object.keys(S.scoreLabels).length === 0 && S.images.length > 0) { 
+        const uniqueScoresPresent = new Set();
+        S.images.forEach(img => { if (S.scores[img.name]) uniqueScoresPresent.add(S.scores[img.name].score); });
+        uniqueScoresPresent.forEach(s => scoreCounts[s] = 0);
+    }
 
-    S.images.forEach(img => {
-        if (S.scores[img.name]) {
-            const score = S.scores[img.name].score;
-            scoreCounts[score] = (scoreCounts[score] || 0) + 1;
-            totalScoredImages++;
-        }
-        const originalWellPathKey = img.filePath; 
-        if (!imagesByOriginalWellPath[originalWellPathKey]) {
-            imagesByOriginalWellPath[originalWellPathKey] = [];
-        }
-        imagesByOriginalWellPath[originalWellPathKey].push(img);
-    });
+    S.images.forEach(img => {
+        if (S.scores[img.name]) {
+            const score = S.scores[img.name].score;
+            scoreCounts[score] = (scoreCounts[score] || 0) + 1;
+            totalScoredImages++;
+        }
+        const originalWellPathKey = img.filePath; 
+        if (!imagesByOriginalWellPath[originalWellPathKey]) {
+            imagesByOriginalWellPath[originalWellPathKey] = [];
+        }
+        imagesByOriginalWellPath[originalWellPathKey].push(img);
+    });
 
-    let matchingReplicateSets = 0;
-    let mismatchingReplicateSets = 0;
-    let wellsWithAllReplicatesScored = 0;
-    const kappaScorePairs = [];
+    let matchingReplicateSets = 0;
+    let mismatchingReplicateSets = 0;
+    let wellsWithAllReplicatesScored = 0;
+    const kappaScorePairs = [];
 
-    Object.values(imagesByOriginalWellPath).forEach(replicateGroup => {
-        const scoredReplicatesInGroup = replicateGroup.filter(img => S.scores[img.name])
-                                                   .sort((a,b) => a.replicateNumber - b.replicateNumber);
+    Object.values(imagesByOriginalWellPath).forEach(replicateGroup => {
+        const scoredReplicatesInGroup = replicateGroup.filter(img => S.scores[img.name])
+                                                   .sort((a,b) => a.replicateNumber - b.replicateNumber);
 
-        if (scoredReplicatesInGroup.length === replicateGroup.length && replicateGroup.length > 0) { 
-             wellsWithAllReplicatesScored++;
-             if (scoredReplicatesInGroup.length > 1) { 
-                const firstScore = S.scores[scoredReplicatesInGroup[0].name].score;
-                const allMatch = scoredReplicatesInGroup.every(img => S.scores[img.name].score === firstScore);
-                if (allMatch) matchingReplicateSets++;
-                else mismatchingReplicateSets++;
-             }
-        }
-        
-        if (scoredReplicatesInGroup.length >= 2) {
-            for (let i = 0; i < scoredReplicatesInGroup.length; i++) {
-                for (let j = i + 1; j < scoredReplicatesInGroup.length; j++) {
-                    const score1 = S.scores[scoredReplicatesInGroup[i].name].score;
-                    const score2 = S.scores[scoredReplicatesInGroup[j].name].score;
-                    kappaScorePairs.push([score1, score2]);
-                }
-            }
-        }
-    });
-    
-    const kappaResult = calculateCohenKappa(kappaScorePairs, S.scoreLabels);
+        if (scoredReplicatesInGroup.length === replicateGroup.length && replicateGroup.length > 0) { 
+             wellsWithAllReplicatesScored++;
+             if (scoredReplicatesInGroup.length > 1) { 
+                const firstScore = S.scores[scoredReplicatesInGroup[0].name].score;
+                const allMatch = scoredReplicatesInGroup.every(img => S.scores[img.name].score === firstScore);
+                if (allMatch) matchingReplicateSets++;
+                else mismatchingReplicateSets++;
+             }
+        }
+        
+        if (scoredReplicatesInGroup.length >= 2) {
+            for (let i = 0; i < scoredReplicatesInGroup.length; i++) {
+                for (let j = i + 1; j < scoredReplicatesInGroup.length; j++) {
+                    const score1 = S.scores[scoredReplicatesInGroup[i].name].score;
+                    const score2 = S.scores[scoredReplicatesInGroup[j].name].score;
+                    kappaScorePairs.push([score1, score2]);
+                }
+            }
+        }
+    });
+    
+    const kappaResult = calculateCohenKappa(kappaScorePairs, S.scoreLabels);
 
-    let summaryText = "Scoring Summary & QC Report\n";
-    summaryText += "-----------------------------\n\n";
-    summaryText += "Images per Score Category:\n";
-    for (const score in scoreCounts) {
-        summaryText += `- ${S.scoreLabels[score] || score}: ${scoreCounts[score]}\n`;
-    }
-    summaryText += `Total Images Scored: ${totalScoredImages}\n\n`;
+    let summaryText = "Scoring Summary & QC Report\n";
+    summaryText += "-----------------------------\n\n";
+    summaryText += "Images per Score Category:\n";
+    for (const score in scoreCounts) {
+        summaryText += `- ${S.scoreLabels[score] || score}: ${scoreCounts[score]}\n`;
+    }
+    summaryText += `Total Images Scored: ${totalScoredImages}\n\n`;
 
-    summaryText += "Replicate Quality Control (QC):\n";
-    summaryText += `- Original wells with all their replicates scored: ${wellsWithAllReplicatesScored}\n`;
-    summaryText += `- Sets of (fully scored) replicates with matching scores: ${matchingReplicateSets}\n`;
-    summaryText += `- Sets of (fully scored) replicates with mismatching scores: ${mismatchingReplicateSets}\n\n`;
+    summaryText += "Replicate Quality Control (QC):\n";
+    summaryText += `- Original wells with all their replicates scored: ${wellsWithAllReplicatesScored}\n`;
+    summaryText += `- Sets of (fully scored) replicates with matching scores: ${matchingReplicateSets}\n`;
+    summaryText += `- Sets of (fully scored) replicates with mismatching scores: ${mismatchingReplicateSets}\n\n`;
 
-    summaryText += "Inter-Replicate Reliability (Cohen's Weighted Kappa):\n";
-    summaryText += `  Cohen's Weighted Kappa (κ) = ${isNaN(kappaResult.kappa) ? "N/A" : kappaResult.kappa.toFixed(3)}\n`;
-    summaryText += `  Interpretation: ${kappaResult.interpretation}\n`;
-    summaryText += `  (Calculated using Fleiss-Cohen quadratic weights, based on ${kappaScorePairs.length} pairs of scores from replicates of the same original images.)\n`;
-    
-    S.summaryStatisticsText = summaryText; 
+    summaryText += "Inter-Replicate Reliability (Cohen's Weighted Kappa):\n";
+    summaryText += `  Cohen's Weighted Kappa (κ) = ${isNaN(kappaResult.kappa) ? "N/A" : kappaResult.kappa.toFixed(3)}\n`;
+    summaryText += `  Interpretation: ${kappaResult.interpretation}\n`;
+    summaryText += `  (Calculated using Fleiss-Cohen quadratic weights, based on ${kappaScorePairs.length} pairs of scores from replicates of the same original images.)\n`;
+    
+    S.summaryStatisticsText = summaryText; 
 
-    return { scoreCounts, totalScoredImages, wellsWithAllReplicatesScored, matchingReplicateSets, mismatchingReplicateSets, kappaResult, kappaPairCount: kappaScorePairs.length };
+    return { scoreCounts, totalScoredImages, wellsWithAllReplicatesScored, matchingReplicateSets, mismatchingReplicateSets, kappaResult, kappaPairCount: kappaScorePairs.length };
 }
 
 
 function displayResultsInModal() {
-    const { scoreCounts, totalScoredImages, wellsWithAllReplicatesScored, matchingReplicateSets, mismatchingReplicateSets, kappaResult, kappaPairCount } = calculateSummaryAndQC();
-    
-    const statsContainer = document.getElementById('summaryStatsContainer');
-    statsContainer.innerHTML = `
-        <h4>Overall Summary:</h4>
-        <table>
-            <tr><th>Category</th><th>Count</th></tr>
-            ${Object.entries(scoreCounts).map(([score, count]) => `<tr><td>${S.scoreLabels[score] || score}</td><td>${count}</td></tr>`).join('')}
-            <tr><td><strong>Total Images Scored</strong></td><td><strong>${totalScoredImages}</strong></td></tr>
-        </table>
-        <h4>Replicate QC:</h4>
-        <table>
-            <tr><td>Original wells with all their replicates scored</td><td>${wellsWithAllReplicatesScored}</td></tr>
-            <tr><td>Sets of (fully scored) replicates with matching scores</td><td>${matchingReplicateSets}</td></tr>
-            <tr><td>Sets of (fully scored) replicates with mismatching scores</td><td>${mismatchingReplicateSets}</td></tr>
-        </table>
-        <h4>Inter-Replicate Reliability:</h4>
-        <table>
-            <tr><td>Cohen's Weighted Kappa (κ)</td><td>${isNaN(kappaResult.kappa) ? "N/A" : kappaResult.kappa.toFixed(3)}</td></tr>
-            <tr><td>Interpretation</td><td>${kappaResult.interpretation}</td></tr>
-        </table>
-        <p class="kappa-info">Kappa calculated using Fleiss-Cohen quadratic weights from ${kappaPairCount} pairs of scores from replicates of the same original images.
-        It measures agreement correcting for chance.
-        </p>
-    `;
+    const { scoreCounts, totalScoredImages, wellsWithAllReplicatesScored, matchingReplicateSets, mismatchingReplicateSets, kappaResult, kappaPairCount } = calculateSummaryAndQC();
+    
+    const statsContainer = document.getElementById('summaryStatsContainer');
+    statsContainer.innerHTML = `
+        <h4>Overall Summary:</h4>
+        <table>
+            <tr><th>Category</th><th>Count</th></tr>
+            ${Object.entries(scoreCounts).map(([score, count]) => `<tr><td>${S.scoreLabels[score] || score}</td><td>${count}</td></tr>`).join('')}
+            <tr><td><strong>Total Images Scored</strong></td><td><strong>${totalScoredImages}</strong></td></tr>
+        </table>
+        <h4>Replicate QC:</h4>
+        <table>
+            <tr><td>Original wells with all their replicates scored</td><td>${wellsWithAllReplicatesScored}</td></tr>
+            <tr><td>Sets of (fully scored) replicates with matching scores</td><td>${matchingReplicateSets}</td></tr>
+            <tr><td>Sets of (fully scored) replicates with mismatching scores</td><td>${mismatchingReplicateSets}</td></tr>
+        </table>
+        <h4>Inter-Replicate Reliability:</h4>
+        <table>
+            <tr><td>Cohen's Weighted Kappa (κ)</td><td>${isNaN(kappaResult.kappa) ? "N/A" : kappaResult.kappa.toFixed(3)}</td></tr>
+            <tr><td>Interpretation</td><td>${kappaResult.interpretation}</td></tr>
+        </table>
+        <p class="kappa-info">Kappa calculated using Fleiss-Cohen quadratic weights from ${kappaPairCount} pairs of scores from replicates of the same original images.
+        It measures agreement correcting for chance.
+        </p>
+    `;
 
-    const displayContainer = document.getElementById('resultsDisplayContainer');
-    displayContainer.innerHTML = ''; 
+    const displayContainer = document.getElementById('resultsDisplayContainer');
+    displayContainer.innerHTML = ''; 
 
-    const imagesByScore = {};
-    Object.keys(S.scoreLabels).forEach(sl => imagesByScore[sl] = []); 
-    Object.values(S.scores).forEach(sc => { if (!imagesByScore[sc.score]) imagesByScore[sc.score] = []; });
+    const imagesByScore = {};
+    Object.keys(S.scoreLabels).forEach(sl => imagesByScore[sl] = []); 
+    Object.values(S.scores).forEach(sc => { if (!imagesByScore[sc.score]) imagesByScore[sc.score] = []; });
 
-    S.images.forEach(img => {
-        if (S.scores[img.name]) {
-            const scoreValue = S.scores[img.name].score;
-            if (!imagesByScore[scoreValue]) imagesByScore[scoreValue] = [];
-            imagesByScore[scoreValue].push(img);
-        }
-    });
+    S.images.forEach(img => {
+        if (S.scores[img.name]) {
+            const scoreValue = S.scores[img.name].score;
+            if (!imagesByScore[scoreValue]) imagesByScore[scoreValue] = [];
+            imagesByScore[scoreValue].push(img);
+        }
+    });
 
-    for (const scoreValue in imagesByScore) {
-        if (imagesByScore[scoreValue].length > 0 || S.scoreLabels[scoreValue]) { 
-            const columnDiv = document.createElement('div');
-            columnDiv.className = 'score-column';
-            const title = document.createElement('h3');
-            title.textContent = S.scoreLabels[scoreValue] || `Score ${scoreValue}`; 
-            columnDiv.appendChild(title);
-            imagesByScore[scoreValue].forEach(imgItem => {
-                const imgDiv = document.createElement('div');
-                imgDiv.className = 'result-image-item';
-                const imgEl = new Image();
-                imgEl.src = imgItem.data;
-                imgEl.title = `${imgItem.name}\nPlate: ${imgItem.plateId}\nFile: ${imgItem.originalFileName}`;
-                imgDiv.appendChild(imgEl);
-                columnDiv.appendChild(imgDiv);
-            });
-            displayContainer.appendChild(columnDiv);
-        }
-    }
+    for (const scoreValue in imagesByScore) {
+        if (imagesByScore[scoreValue].length > 0 || S.scoreLabels[scoreValue]) { 
+            const columnDiv = document.createElement('div');
+            columnDiv.className = 'score-column';
+            const title = document.createElement('h3');
+            title.textContent = S.scoreLabels[scoreValue] || `Score ${scoreValue}`; 
+            columnDiv.appendChild(title);
+            imagesByScore[scoreValue].forEach(imgItem => {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'result-image-item';
+                const imgEl = new Image();
+                imgEl.src = imgItem.data;
+                imgEl.title = `${imgItem.name}\nPlate: ${imgItem.plateId}\nFile: ${imgItem.originalFileName}`;
+                imgDiv.appendChild(imgEl);
+                columnDiv.appendChild(imgDiv);
+            });
+            displayContainer.appendChild(columnDiv);
+        }
+    }
 }
 
 document.getElementById('downloadScores').onclick = async () => {
-  if (!S.images.length) { alert('No images loaded.'); return; }
-  const scorerName = document.getElementById('scorerName').value.trim();
-  if (!scorerName) { alert('Please enter scorer name.'); return; }
-  
-  if (!S.summaryStatisticsText || Object.keys(S.scores).length > 0) { calculateSummaryAndQC(); }
+    if (!S.images.length) { alert('No images loaded.'); return; }
+    const scorerName = document.getElementById('scorerName').value.trim();
+    if (!scorerName) { alert('Please enter scorer name.'); return; }
 
-  const csvHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'Row', 'Column'];
-  const csvRows = S.images.map(img => {
-    const scoreData = S.scores[img.name] || {}; // img.name is the unique key for S.scores
-    return [
-        scorerName, 
-        img.plateId,
-        img.filePath,
-        img.originalFileName,
-        img.name, // This is the (potentially replicated) scoring key
-        scoreData.score||'', 
-        scoreData.timestamp||'', 
-        img.replicateNumber, 
-        img.row||'', 
-        img.col||''
-    ].join(',');
-  });
-  const csvContent = [csvHeader.join(','), ...csvRows].join('\n');
+    if (!S.summaryStatisticsText || Object.keys(S.scores).length > 0) { calculateSummaryAndQC(); }
 
-  const zip = new JSZip();
-  zip.file('image_scores.csv', csvContent);
-  if (S.summaryStatisticsText) zip.file('summary_statistics.txt', S.summaryStatisticsText);
+    // Get user-defined options for parsing from the UI
+    const customHeaders = document.getElementById('csvColNames').value.split(',').map(s => s.trim()).filter(Boolean);
+    const delimiter = document.getElementById('csvDelimiter').value;
 
-  const imagesByPlate = S.images.reduce((acc, img) => {
-    const plate = img.plateId || 'DefaultPlate';
-    if (!acc[plate]) acc[plate] = [];
-    acc[plate].push(img);
-    return acc;
-  }, {});
+    // Determine the maximum number of TOTAL parts from combined row and column labels
+    let maxTotalParts = 0;
+    S.images.forEach(img => {
+        const rowParts = parseMetadataParts(img.row, delimiter);
+        const colParts = parseMetadataParts(img.col, delimiter);
+        maxTotalParts = Math.max(maxTotalParts, rowParts.length + colParts.length);
+    });
 
-  const mosaicsFolder = zip.folder("plate_mosaics");
-  const uniquePlateIdsForBatch = [...new Set(S.images.map(img => img.plateId || 'DefaultPlate'))];
-  const isMultiPlateBatch = uniquePlateIdsForBatch.length > 1;
-
-
-  for (const plateId in imagesByPlate) {
-    const plateImages = imagesByPlate[plateId];
-    if (plateImages.length === 0) continue;
-
-    const thumbMap = createThumbnailMapForPlateMosaic(plateImages);
-    const consensus = generateConsensusScoresForPlate(plateImages);
-    
-    if (thumbMap.size > 0) {
-      let plateSpecificRows = [...new Set(plateImages.map(i => i.row).filter(Boolean))];
-      let plateSpecificCols = [...new Set(plateImages.map(i => i.col).filter(Boolean))];
-      
-      const storedRowOrder = JSON.parse(localStorage.getItem('rowOrder') || '[]');
-      const storedColOrder = JSON.parse(localStorage.getItem('colOrder') || '[]');
-
-      const plateUniqueRowsSet = new Set(plateSpecificRows);
-      if (storedRowOrder.length === plateUniqueRowsSet.size && storedRowOrder.every(r => plateUniqueRowsSet.has(r))) {
-          plateSpecificRows = storedRowOrder;
-      } else {
-          plateSpecificRows.sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true, sensitivity: 'base'}));
-      }
-
-      const plateUniqueColsSet = new Set(plateSpecificCols);
-      if (storedColOrder.length === plateUniqueColsSet.size && storedColOrder.every(c => plateUniqueColsSet.has(c))) {
-          plateSpecificCols = storedColOrder;
-      } else {
-          const extractNumericPrefix = s => (/^([0-9.]+)/.exec(String(s))||[])[1];
-          plateSpecificCols.sort((a,b)=>{
-            const numA = parseFloat(extractNumericPrefix(a)); const numB = parseFloat(extractNumericPrefix(b));
-            if(!isNaN(numA) && !isNaN(numB)) return numA - numB; if(!isNaN(numA)) return -1; if(!isNaN(numB)) return 1;
-            return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity: 'base'});
-          });
-      }
-      
-      const mosaicPngBlob = await generatePlateMosaic(plateSpecificRows, plateSpecificCols, thumbMap, consensus, plateId, isMultiPlateBatch);
-      if (mosaicPngBlob && mosaicPngBlob.size > 100) { 
-        mosaicsFolder.file(`${plateId.replace(/[\/\s]+/g, '_')}_mosaic.png`, mosaicPngBlob);
-      } else if (mosaicPngBlob) {
-        console.warn(`Mosaic for plate ${plateId} was very small or empty, not added to ZIP.`);
-      }
+    // Create the dynamic metadata headers
+    const baseHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'OriginalRowLabel', 'OriginalColLabel'];
+    const metadataHeaders = [];
+    for (let i = 0; i < maxTotalParts; i++) {
+        // Use user-provided name, or fall back to a generic name like "Part_1", "Part_2", etc.
+        metadataHeaders.push(customHeaders[i] || `Part_${i + 1}`);
     }
-  }
-  
-  // Revised ZIP Filename
-  const today = new Date();
-  const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD
-  const zipFilename = `StressAssay_ScoringResults_${scorerName || 'scorer'}_${dateString}.zip`;
+    const csvHeader = [...baseHeader, ...metadataHeaders];
 
-  try {
-    const zipBlob = await zip.generateAsync({type:'blob'});
-    saveAs(zipBlob, zipFilename);
-  } catch (error) { console.error("Error generating ZIP:", error); alert("Failed to generate ZIP."); }
+    // Generate CSV rows with parsed & named metadata
+    const csvRows = S.images.map(img => {
+        const scoreData = S.scores[img.name] || {};
+        const baseData = [
+            scorerName, img.plateId, img.filePath, img.originalFileName, img.name,
+            scoreData.score || '', scoreData.timestamp || '', img.replicateNumber,
+            img.row || '', img.col || ''
+        ];
+
+        // Combine parts from row and column labels into a single sequence
+        const rowParts = parseMetadataParts(img.row, delimiter);
+        const colParts = parseMetadataParts(img.col, delimiter);
+        const allParts = [...rowParts, ...colParts];
+
+        // Pad the parts array to the max length with empty strings for a consistent CSV structure
+        const paddedParts = [...allParts, ...Array(maxTotalParts - allParts.length).fill('')];
+
+        const finalRowArray = [...baseData, ...paddedParts];
+        
+        // Join into a properly quoted CSV string, handling fields that may contain commas or quotes
+        return finalRowArray.map(field => {
+            const fieldStr = String(field);
+            if (/[",\n\r]/.test(fieldStr)) {
+                return `"${fieldStr.replace(/"/g, '""')}"`;
+            }
+            return fieldStr;
+        }).join(',');
+    });
+
+    const csvContent = [csvHeader.join(','), ...csvRows].join('\n');
+
+    const zip = new JSZip();
+    zip.file('image_scores.csv', csvContent);
+    if (S.summaryStatisticsText) zip.file('summary_statistics.txt', S.summaryStatisticsText);
+
+    const imagesByPlate = S.images.reduce((acc, img) => {
+        const plate = img.plateId || 'DefaultPlate';
+        if (!acc[plate]) acc[plate] = [];
+        acc[plate].push(img);
+        return acc;
+    }, {});
+
+    const mosaicsFolder = zip.folder("plate_mosaics");
+    const uniquePlateIdsForBatch = [...new Set(S.images.map(img => img.plateId || 'DefaultPlate'))];
+    const isMultiPlateBatch = uniquePlateIdsForBatch.length > 1;
+
+    for (const plateId in imagesByPlate) {
+        const plateImages = imagesByPlate[plateId];
+        if (plateImages.length === 0) continue;
+
+        const thumbMap = createThumbnailMapForPlateMosaic(plateImages);
+        const consensus = generateConsensusScoresForPlate(plateImages);
+
+        if (thumbMap.size > 0) {
+            let plateSpecificRows = [...new Set(plateImages.map(i => i.row).filter(Boolean))];
+            let plateSpecificCols = [...new Set(plateImages.map(i => i.col).filter(Boolean))];
+
+            const storedRowOrder = JSON.parse(localStorage.getItem('rowOrder') || '[]');
+            const storedColOrder = JSON.parse(localStorage.getItem('colOrder') || '[]');
+
+            const plateUniqueRowsSet = new Set(plateSpecificRows);
+            if (storedRowOrder.length === plateUniqueRowsSet.size && storedRowOrder.every(r => plateUniqueRowsSet.has(r))) {
+                plateSpecificRows = storedRowOrder;
+            } else {
+                plateSpecificRows.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' }));
+            }
+
+            const plateUniqueColsSet = new Set(plateSpecificCols);
+            if (storedColOrder.length === plateUniqueColsSet.size && storedColOrder.every(c => plateUniqueColsSet.has(c))) {
+                plateSpecificCols = storedColOrder;
+            } else {
+                const extractNumericPrefix = s => (/^([0-9.]+)/.exec(String(s)) || [])[1];
+                plateSpecificCols.sort((a, b) => {
+                    const numA = parseFloat(extractNumericPrefix(a)); const numB = parseFloat(extractNumericPrefix(b));
+                    if (!isNaN(numA) && !isNaN(numB)) return numA - numB; if (!isNaN(numA)) return -1; if (!isNaN(numB)) return 1;
+                    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+                });
+            }
+
+            const mosaicPngBlob = await generatePlateMosaic(plateSpecificRows, plateSpecificCols, thumbMap, consensus, plateId, isMultiPlateBatch);
+            if (mosaicPngBlob && mosaicPngBlob.size > 100) {
+                mosaicsFolder.file(`${plateId.replace(/[\/\s]+/g, '_')}_mosaic.png`, mosaicPngBlob);
+            } else if (mosaicPngBlob) {
+                console.warn(`Mosaic for plate ${plateId} was very small or empty, not added to ZIP.`);
+            }
+        }
+    }
+
+    const today = new Date();
+    const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    const zipFilename = `StressAssay_ScoringResults_${scorerName || 'scorer'}_${dateString}.zip`;
+
+    try {
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        saveAs(zipBlob, zipFilename);
+    } catch (error) { console.error("Error generating ZIP:", error); alert("Failed to generate ZIP."); }
 };
 
+
 document.getElementById('setScores').onclick = () => {
-  const customScoresInput = document.getElementById('customScores').value.trim();
-  if (!customScoresInput) { setDefaultScores(); return; }
-  const newScoreValues = []; const newScoreLabels = {};
-  const colorPalette = ['#d33f3f', '#0066ff', '#008000', '#ee9900', '#913bff', '#17a2b8', '#fd7e14', '#6f42c1'];
-  customScoresInput.split(',').map(x => x.trim()).filter(Boolean).forEach(entry => {
-    const [value, ...labelParts] = entry.split(':').map(s => s.trim());
-    const label = labelParts.join(':').trim(); 
-    if (value && !newScoreValues.includes(value)) { newScoreValues.push(value); newScoreLabels[value] = label || value; }
-  });
-  if (newScoreValues.length === 0) { alert("No valid custom scores. Format: 'value:Label,...'"); setDefaultScores(); return; }
-  S.scoreLabels = newScoreLabels; S.scoreColors = {};
-  newScoreValues.forEach((score, index) => S.scoreColors[score] = colorPalette[index % colorPalette.length]);
-  const scoreSelector = document.getElementById('scoreSelector');
-  scoreSelector.innerHTML = '<option value="">-- Select Score --</option>';
-  newScoreValues.forEach(score => scoreSelector.insertAdjacentHTML('beforeend', `<option value="${score}">${newScoreLabels[score]}</option>`));
-  if (document.getElementById('resultsModal').style.display === 'block') displayResultsInModal();
+  const customScoresInput = document.getElementById('customScores').value.trim();
+  if (!customScoresInput) { setDefaultScores(); return; }
+  const newScoreValues = []; const newScoreLabels = {};
+  const colorPalette = ['#d33f3f', '#0066ff', '#008000', '#ee9900', '#913bff', '#17a2b8', '#fd7e14', '#6f42c1'];
+  customScoresInput.split(',').map(x => x.trim()).filter(Boolean).forEach(entry => {
+    const [value, ...labelParts] = entry.split(':').map(s => s.trim());
+    const label = labelParts.join(':').trim(); 
+    if (value && !newScoreValues.includes(value)) { newScoreValues.push(value); newScoreLabels[value] = label || value; }
+  });
+  if (newScoreValues.length === 0) { alert("No valid custom scores. Format: 'value:Label,...'"); setDefaultScores(); return; }
+  S.scoreLabels = newScoreLabels; S.scoreColors = {};
+  newScoreValues.forEach((score, index) => S.scoreColors[score] = colorPalette[index % colorPalette.length]);
+  const scoreSelector = document.getElementById('scoreSelector');
+  scoreSelector.innerHTML = '<option value="">-- Select Score --</option>';
+  newScoreValues.forEach(score => scoreSelector.insertAdjacentHTML('beforeend', `<option value="${score}">${newScoreLabels[score]}</option>`));
+  if (document.getElementById('resultsModal').style.display === 'block') displayResultsInModal();
 };
 
 /* IMAGE DICER LOGIC */
@@ -1150,86 +1208,86 @@ const colLabelsTextareaDicer = document.getElementById('colLabelsDicer');
 const processDicerButton = document.getElementById('processButtonDicer');
 const progressDivDicer = document.getElementById('progressDicer');
 const downloadZipButtonDicer = document.getElementById('downloadButtonDicer');
-let croppedImagesZip; 
+let croppedImagesZip; 
 
 processDicerButton.onclick = () => {
-  const filesToDice = [...imageFilesInputDicer.files];
-  if (!filesToDice.length) { alert('Upload plate photograph(s) to dice.'); return; }
-  const numRows = parseInt(rowsInputDicer.value); const numCols = parseInt(colsInputDicer.value);
-  const rowLabels = rowLabelsTextareaDicer.value.split(',').map(s => s.trim()).filter(Boolean);
-  const colLabels = colLabelsTextareaDicer.value.split(',').map(s => s.trim()).filter(Boolean);
-  if (rowLabels.length !== numRows || colLabels.length !== numCols) { alert('Label count must match row/column count.'); return; }
-  
-  localStorage.setItem('rowOrder', JSON.stringify(rowLabels)); 
-  localStorage.setItem('colOrder', JSON.stringify(colLabels));
+  const filesToDice = [...imageFilesInputDicer.files];
+  if (!filesToDice.length) { alert('Upload plate photograph(s) to dice.'); return; }
+  const numRows = parseInt(rowsInputDicer.value); const numCols = parseInt(colsInputDicer.value);
+  const rowLabels = rowLabelsTextareaDicer.value.split(',').map(s => s.trim()).filter(Boolean);
+  const colLabels = colLabelsTextareaDicer.value.split(',').map(s => s.trim()).filter(Boolean);
+  if (rowLabels.length !== numRows || colLabels.length !== numCols) { alert('Label count must match row/column count.'); return; }
+  
+  localStorage.setItem('rowOrder', JSON.stringify(rowLabels)); 
+  localStorage.setItem('colOrder', JSON.stringify(colLabels));
 
-  croppedImagesZip = new JSZip(); progressDivDicer.textContent = 'Processing...';
-  downloadZipButtonDicer.style.display = 'none'; let filesProcessedCount = 0;
+  croppedImagesZip = new JSZip(); progressDivDicer.textContent = 'Processing...';
+  downloadZipButtonDicer.style.display = 'none'; let filesProcessedCount = 0;
 
-  filesToDice.forEach(file => {
-    fileURL(file).then(dataUrl => { 
-      const mainImage = new Image();
-      mainImage.onload = () => {
-        sliceImageIntoWells(mainImage, file.name, numRows, numCols, rowLabels, colLabels);
-        filesProcessedCount++;
-        progressDivDicer.textContent = `Processed ${filesProcessedCount}/${filesToDice.length} images.`;
-        if (filesProcessedCount === filesToDice.length) {
-          progressDivDicer.textContent = 'All images processed. ZIP ready.';
-          downloadZipButtonDicer.style.display = 'inline-block';
-        }
-      };
-      mainImage.onerror = () => {
-        console.error("Failed to load image for dicing:", file.name);
-        alert(`Error loading ${file.name}.`); filesProcessedCount++; 
-        if (filesProcessedCount === filesToDice.length) {
-            progressDivDicer.textContent = 'Processing complete (some errors).';
-            if (croppedImagesZip.files && Object.keys(croppedImagesZip.files).length > 0) downloadZipButtonDicer.style.display = 'inline-block';
-            else progressDivDicer.textContent = 'No images diced.';
-        }
-      };
-      mainImage.src = dataUrl;
-    }).catch(error => {
-        console.error("Error reading file for dicing:", file.name, error);
-        alert(`Could not read ${file.name}. Error: ${error.message}`); filesProcessedCount++;
-         if (filesProcessedCount === filesToDice.length) { 
-            progressDivDicer.textContent = 'Processing complete (with some errors).';
-            if (croppedImagesZip.files && Object.keys(croppedImagesZip.files).length > 0) {
-                 downloadZipButtonDicer.style.display = 'inline-block';
-            } else {
-                 progressDivDicer.textContent = 'Processing complete, but no images were successfully diced.';
-            }
-         }
-    });
-  });
+  filesToDice.forEach(file => {
+    fileURL(file).then(dataUrl => { 
+      const mainImage = new Image();
+      mainImage.onload = () => {
+        sliceImageIntoWells(mainImage, file.name, numRows, numCols, rowLabels, colLabels);
+        filesProcessedCount++;
+        progressDivDicer.textContent = `Processed ${filesProcessedCount}/${filesToDice.length} images.`;
+        if (filesProcessedCount === filesToDice.length) {
+          progressDivDicer.textContent = 'All images processed. ZIP ready.';
+          downloadZipButtonDicer.style.display = 'inline-block';
+        }
+      };
+      mainImage.onerror = () => {
+        console.error("Failed to load image for dicing:", file.name);
+        alert(`Error loading ${file.name}.`); filesProcessedCount++; 
+        if (filesProcessedCount === filesToDice.length) {
+            progressDivDicer.textContent = 'Processing complete (some errors).';
+            if (croppedImagesZip.files && Object.keys(croppedImagesZip.files).length > 0) downloadZipButtonDicer.style.display = 'inline-block';
+            else progressDivDicer.textContent = 'No images diced.';
+        }
+      };
+      mainImage.src = dataUrl;
+    }).catch(error => {
+        console.error("Error reading file for dicing:", file.name, error);
+        alert(`Could not read ${file.name}. Error: ${error.message}`); filesProcessedCount++;
+         if (filesProcessedCount === filesToDice.length) { 
+            progressDivDicer.textContent = 'Processing complete (with some errors).';
+            if (croppedImagesZip.files && Object.keys(croppedImagesZip.files).length > 0) {
+                 downloadZipButtonDicer.style.display = 'inline-block';
+            } else {
+                 progressDivDicer.textContent = 'Processing complete, but no images were successfully diced.';
+            }
+         }
+    });
+  });
 };
 
 function sliceImageIntoWells(imageElement, originalPlatePhotoName, numRows, numCols, rowLabels, colLabels) {
-  const wellWidth = imageElement.width / numCols; const wellHeight = imageElement.height / numRows;
-  const subFolderName = originalPlatePhotoName.replace(/\.[^.]+$/, ''); 
+  const wellWidth = imageElement.width / numCols; const wellHeight = imageElement.height / numRows;
+  const subFolderName = originalPlatePhotoName.replace(/\.[^.]+$/, ''); 
 
-  for (let i = 0; i < numRows; i++) { 
-    for (let j = 0; j < numCols; j++) { 
-      const canvas = document.createElement('canvas'); canvas.width = wellWidth; canvas.height = wellHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(imageElement, j * wellWidth, i * wellHeight, wellWidth, wellHeight, 0, 0, wellWidth, wellHeight);
-      const wellFileName = `${subFolderName}_${rowLabels[i]}_${colLabels[j]}.jpg`;
-      const imageDataBase64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-      croppedImagesZip.folder(subFolderName).file(wellFileName, imageDataBase64, {base64: true});
-    }
-  }
+  for (let i = 0; i < numRows; i++) { 
+    for (let j = 0; j < numCols; j++) { 
+      const canvas = document.createElement('canvas'); canvas.width = wellWidth; canvas.height = wellHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(imageElement, j * wellWidth, i * wellHeight, wellWidth, wellHeight, 0, 0, wellWidth, wellHeight);
+      const wellFileName = `${subFolderName}_${rowLabels[i]}_${colLabels[j]}.jpg`;
+      const imageDataBase64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+      croppedImagesZip.folder(subFolderName).file(wellFileName, imageDataBase64, {base64: true});
+    }
+  }
 }
 
 downloadZipButtonDicer.onclick = () => {
-  if (!croppedImagesZip || Object.keys(croppedImagesZip.files).length === 0) { alert("No images processed for ZIP."); return; }
-  progressDivDicer.textContent = 'Generating ZIP...';
-  croppedImagesZip.generateAsync({type:'blob'})
-    .then(blob => { saveAs(blob, 'cropped_well_images.zip'); progressDivDicer.textContent = 'ZIP file ready.'; })
-    .catch(err => { console.error("Error generating ZIP:", err); progressDivDicer.textContent = 'Error creating ZIP.'; alert("Error creating ZIP."); });
+  if (!croppedImagesZip || Object.keys(croppedImagesZip.files).length === 0) { alert("No images processed for ZIP."); return; }
+  progressDivDicer.textContent = 'Generating ZIP...';
+  croppedImagesZip.generateAsync({type:'blob'})
+    .then(blob => { saveAs(blob, 'cropped_well_images.zip'); progressDivDicer.textContent = 'ZIP file ready.'; })
+    .catch(err => { console.error("Error generating ZIP:", err); progressDivDicer.textContent = 'Error creating ZIP.'; alert("Error creating ZIP."); });
 };
 
 window.onclick = function(event) {
-  const modal = document.getElementById('resultsModal');
-  if (event.target == modal) modal.style.display = "none";
+  const modal = document.getElementById('resultsModal');
+  if (event.target == modal) modal.style.display = "none";
 }
 </script>
 </body>
