@@ -250,6 +250,20 @@
         <label for="replicationFactor">4. (Optional) Replication factor:</label>
         <input id="replicationFactor" type="number" value="2" min="1" step="0.1">
         
+        <hr>
+        <details>
+            <summary>Add Sample Information</summary>
+            <div style="padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-top: none; border-radius: 0 0 3px 3px; margin-top: -5px;">
+                <label for="csvColNames" style="margin-top: 10px;">CSV Metadata Columns:</label>
+                <small style="display: block; font-size: 0.8em; color: #555; margin-top: -8px; margin-bottom: 8px;">Comma-separated names for parsed metadata parts from your filenames.</small>
+                <input id="csvColNames" type="text" placeholder="e.g., Strain,Condition,Concentration">
+                
+                <label for="csvDelimiter">Metadata Delimiter:</label>
+                <small style="display: block; font-size: 0.8em; color: #555; margin-top: -8px; margin-bottom: 8px;">Character(s) used to split labels (e.g., `_` or `.-`).</small>
+                <input id="csvDelimiter" type="text" value="_">
+            </div>
+        </details>
+        <hr>
         <button id="loadImages" style="width: 100%; margin-top: 10px;">5. Load Images for Scoring</button>
       </div>
       <div id="sidebarFooter">
@@ -407,6 +421,26 @@ const shuffle = array => {
     [array[i], array[j]] = [array[j], array[i]];
   }
 };
+
+/**
+ * Parses a metadata label string into its constituent parts based on delimiters.
+ * @param {string} label - The label string to parse (e.g., "0.4M.NaCl" or "StrainX-ConditionY").
+ * @param {string} delimiter - A string containing all characters to use as delimiters (e.g., "_.-").
+ * @returns {string[]} An array of the label's parts.
+ */
+function parseMetadataParts(label, delimiter) {
+    if (!label) return [];
+    // If no delimiter is provided, return the whole label as a single part.
+    if (!delimiter) return [label]; 
+
+    // Escape any special regex characters in the user-provided delimiter string.
+    const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Create a regex to split by one or more of any of the provided delimiter characters.
+    const regex = new RegExp(`[${escapedDelimiter}]+`);
+
+    // Split and filter out empty strings that can result from leading/trailing delimiters.
+    return label.split(regex).filter(Boolean); 
+}
 
 /**
  * Parses Row and Column identifiers from a potentially complex filename.
@@ -1035,22 +1069,72 @@ document.getElementById('downloadScores').onclick = async () => {
   
   if (!S.summaryStatisticsText || Object.keys(S.scores).length > 0) { calculateSummaryAndQC(); }
 
-  const csvHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'Row', 'Column'];
-  const csvRows = S.images.map(img => {
-    const scoreData = S.scores[img.name] || {}; // img.name is the unique key for S.scores
-    return [
-        scorerName, 
-        img.plateId,
-        img.filePath,
-        img.originalFileName,
-        img.name, // This is the (potentially replicated) scoring key
-        scoreData.score||'', 
-        scoreData.timestamp||'', 
-        img.replicateNumber, 
-        img.row||'', 
-        img.col||''
-    ].join(',');
-  });
+  //const csvHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'Row', 'Column'];
+  //const csvRows = S.images.map(img => {
+  //  const scoreData = S.scores[img.name] || {}; // img.name is the unique key for S.scores
+  //  return [
+   //     scorerName, 
+  //      img.plateId,
+    //    img.filePath,
+      //  img.originalFileName,
+        //img.name, // This is the (potentially replicated) scoring key
+//        scoreData.score||'', 
+ //       scoreData.timestamp||'', 
+  //      img.replicateNumber, 
+   //     img.row||'', 
+    //    img.col||''
+    //].join(',');
+  //});
+  // Get user-defined options for parsing from the UI
+    //const customHeaders = document.getElementById('csvColNames').value.split(',').map(s => s.trim()).filter(Boolean);
+    //const delimiter = document.getElementById('csvDelimiter').value;
+
+    // Determine the maximum number of TOTAL parts from combined row and column labels
+   // let maxTotalParts = 0;
+    //S.images.forEach(img => {
+    //    const rowParts = parseMetadataParts(img.row, delimiter);
+     //   const colParts = parseMetadataParts(img.col, delimiter);
+      //  maxTotalParts = Math.max(maxTotalParts, rowParts.length + colParts.length);
+    //});
+
+    // Create the dynamic metadata headers
+    const baseHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'OriginalRowLabel', 'OriginalColLabel'];
+    const metadataHeaders = [];
+    for (let i = 0; i < maxTotalParts; i++) {
+        // Use user-provided name, or fall back to a generic name like "Part_1", "Part_2", etc.
+        metadataHeaders.push(customHeaders[i] || `Part_${i + 1}`);
+    }
+    const csvHeader = [...baseHeader, ...metadataHeaders];
+
+    // Generate CSV rows with parsed & named metadata
+    const csvRows = S.images.map(img => {
+        const scoreData = S.scores[img.name] || {};
+        const baseData = [
+            scorerName, img.plateId, img.filePath, img.originalFileName, img.name,
+            scoreData.score || '', scoreData.timestamp || '', img.replicateNumber,
+            img.row || '', img.col || ''
+        ];
+
+        // Combine parts from row and column labels into a single sequence
+        const rowParts = parseMetadataParts(img.row, delimiter);
+        const colParts = parseMetadataParts(img.col, delimiter);
+        const allParts = [...rowParts, ...colParts];
+
+        // Pad the parts array to the max length with empty strings for a consistent CSV structure
+        const paddedParts = [...allParts, ...Array(maxTotalParts - allParts.length).fill('')];
+
+        const finalRowArray = [...baseData, ...paddedParts];
+
+        // Join into a properly quoted CSV string, handling fields that may contain commas or quotes
+        return finalRowArray.map(field => {
+            const fieldStr = String(field);
+            if (/[",\n\r]/.test(fieldStr)) {
+                return `"${fieldStr.replace(/"/g, '""')}"`;
+            }
+            return fieldStr;
+        }).join(',');
+    });
+  
   const csvContent = [csvHeader.join(','), ...csvRows].join('\n');
 
   const zip = new JSZip();
