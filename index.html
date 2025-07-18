@@ -1054,129 +1054,134 @@ function displayResultsInModal() {
 }
 
 document.getElementById('downloadScores').onclick = async () => {
-    if (!S.images.length) { alert('No images loaded.'); return; }
-    const scorerName = document.getElementById('scorerName').value.trim();
-    if (!scorerName) { alert('Please enter scorer name.'); return; }
+    try {
+        if (!S.images.length) { alert('No images loaded.'); return; }
+        const scorerName = document.getElementById('scorerName').value.trim();
+        if (!scorerName) { alert('Please enter scorer name.'); return; }
+      
+        if (!S.summaryStatisticsText || Object.keys(S.scores).length > 0) { calculateSummaryAndQC(); }
 
-    if (!S.summaryStatisticsText || Object.keys(S.scores).length > 0) { calculateSummaryAndQC(); }
+        // Safely get values from optional input fields
+        const colNamesInput = document.getElementById('csvColNames');
+        const delimiterInput = document.getElementById('csvDelimiter');
+        const customHeaders = colNamesInput ? colNamesInput.value.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const delimiter = delimiterInput ? delimiterInput.value : '_';
 
-    // Get user-defined options for parsing from the UI
-    const customHeaders = document.getElementById('csvColNames').value.split(',').map(s => s.trim()).filter(Boolean);
-    const delimiter = document.getElementById('csvDelimiter').value;
-
-    // Determine the maximum number of TOTAL parts from combined row and column labels
-    let maxTotalParts = 0;
-    S.images.forEach(img => {
-        const rowParts = parseMetadataParts(img.row, delimiter);
-        const colParts = parseMetadataParts(img.col, delimiter);
-        maxTotalParts = Math.max(maxTotalParts, rowParts.length + colParts.length);
-    });
-
-    // Create the dynamic metadata headers
-    const baseHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'OriginalRowLabel', 'OriginalColLabel'];
-    const metadataHeaders = [];
-    for (let i = 0; i < maxTotalParts; i++) {
-        // Use user-provided name, or fall back to a generic name like "Part_1", "Part_2", etc.
-        metadataHeaders.push(customHeaders[i] || `Part_${i + 1}`);
-    }
-    const csvHeader = [...baseHeader, ...metadataHeaders];
-
-    // Generate CSV rows with parsed & named metadata
-    const csvRows = S.images.map(img => {
-        const scoreData = S.scores[img.name] || {};
-        const baseData = [
-            scorerName, img.plateId, img.filePath, img.originalFileName, img.name,
-            scoreData.score || '', scoreData.timestamp || '', img.replicateNumber,
-            img.row || '', img.col || ''
-        ];
-
-        // Combine parts from row and column labels into a single sequence
-        const rowParts = parseMetadataParts(img.row, delimiter);
-        const colParts = parseMetadataParts(img.col, delimiter);
-        const allParts = [...rowParts, ...colParts];
-
-        // Pad the parts array to the max length with empty strings for a consistent CSV structure
-        const paddedParts = [...allParts, ...Array(maxTotalParts - allParts.length).fill('')];
-
-        const finalRowArray = [...baseData, ...paddedParts];
+        // **CORRECT PLACEMENT**: Declare maxTotalParts here, in the main scope of the function.
+        let maxTotalParts = 0; 
         
-        // Join into a properly quoted CSV string, handling fields that may contain commas or quotes
-        return finalRowArray.map(field => {
-            const fieldStr = String(field);
-            if (/[",\n\r]/.test(fieldStr)) {
-                return `"${fieldStr.replace(/"/g, '""')}"`;
-            }
-            return fieldStr;
-        }).join(',');
-    });
-
-    const csvContent = [csvHeader.join(','), ...csvRows].join('\n');
-
-    const zip = new JSZip();
-    zip.file('image_scores.csv', csvContent);
-    if (S.summaryStatisticsText) zip.file('summary_statistics.txt', S.summaryStatisticsText);
-
-    const imagesByPlate = S.images.reduce((acc, img) => {
-        const plate = img.plateId || 'DefaultPlate';
-        if (!acc[plate]) acc[plate] = [];
-        acc[plate].push(img);
-        return acc;
-    }, {});
-
-    const mosaicsFolder = zip.folder("plate_mosaics");
-    const uniquePlateIdsForBatch = [...new Set(S.images.map(img => img.plateId || 'DefaultPlate'))];
-    const isMultiPlateBatch = uniquePlateIdsForBatch.length > 1;
-
-    for (const plateId in imagesByPlate) {
-        const plateImages = imagesByPlate[plateId];
-        if (plateImages.length === 0) continue;
-
-        const thumbMap = createThumbnailMapForPlateMosaic(plateImages);
-        const consensus = generateConsensusScoresForPlate(plateImages);
-
-        if (thumbMap.size > 0) {
-            let plateSpecificRows = [...new Set(plateImages.map(i => i.row).filter(Boolean))];
-            let plateSpecificCols = [...new Set(plateImages.map(i => i.col).filter(Boolean))];
-
-            const storedRowOrder = JSON.parse(localStorage.getItem('rowOrder') || '[]');
-            const storedColOrder = JSON.parse(localStorage.getItem('colOrder') || '[]');
-
-            const plateUniqueRowsSet = new Set(plateSpecificRows);
-            if (storedRowOrder.length === plateUniqueRowsSet.size && storedRowOrder.every(r => plateUniqueRowsSet.has(r))) {
-                plateSpecificRows = storedRowOrder;
-            } else {
-                plateSpecificRows.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' }));
-            }
-
-            const plateUniqueColsSet = new Set(plateSpecificCols);
-            if (storedColOrder.length === plateUniqueColsSet.size && storedColOrder.every(c => plateUniqueColsSet.has(c))) {
-                plateSpecificCols = storedColOrder;
-            } else {
-                const extractNumericPrefix = s => (/^([0-9.]+)/.exec(String(s)) || [])[1];
-                plateSpecificCols.sort((a, b) => {
+        // Determine the maximum number of TOTAL parts from combined row and column labels
+        S.images.forEach(img => {
+            const rowParts = parseMetadataParts(img.row, delimiter);
+            const colParts = parseMetadataParts(img.col, delimiter);
+            maxTotalParts = Math.max(maxTotalParts, rowParts.length + colParts.length);
+        });
+    
+        // Create the dynamic metadata headers
+        const baseHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'OriginalRowLabel', 'OriginalColLabel'];
+        const metadataHeaders = [];
+        for (let i = 0; i < maxTotalParts; i++) {
+            metadataHeaders.push(customHeaders[i] || `Part_${i + 1}`);
+        }
+        const csvHeader = [...baseHeader, ...metadataHeaders];
+    
+        // Generate CSV rows with parsed & named metadata
+        const csvRows = S.images.map(img => {
+            const scoreData = S.scores[img.name] || {};
+            const baseData = [
+                scorerName, img.plateId, img.filePath, img.originalFileName, img.name,
+                scoreData.score || '', scoreData.timestamp || '', img.replicateNumber,
+                img.row || '', img.col || ''
+            ];
+    
+            const rowParts = parseMetadataParts(img.row, delimiter);
+            const colParts = parseMetadataParts(img.col, delimiter);
+            const allParts = [...rowParts, ...colParts];
+    
+            // **USAGE**: maxTotalParts is now correctly accessed here.
+            const paddedParts = [...allParts, ...Array(maxTotalParts - allParts.length).fill('')];
+    
+            const finalRowArray = [...baseData, ...paddedParts];
+            
+            return finalRowArray.map(field => {
+                const fieldStr = String(field);
+                if (/[",\n\r]/.test(fieldStr)) {
+                    return `"${fieldStr.replace(/"/g, '""')}"`;
+                }
+                return fieldStr;
+            }).join(',');
+        });
+    
+        const csvContent = [csvHeader.join(','), ...csvRows].join('\n');
+    
+        const zip = new JSZip();
+        zip.file('image_scores.csv', csvContent);
+        if (S.summaryStatisticsText) zip.file('summary_statistics.txt', S.summaryStatisticsText);
+    
+        const imagesByPlate = S.images.reduce((acc, img) => {
+            const plate = img.plateId || 'DefaultPlate';
+            if (!acc[plate]) acc[plate] = [];
+            acc[plate].push(img);
+            return acc;
+        }, {});
+    
+        const mosaicsFolder = zip.folder("plate_mosaics");
+        const uniquePlateIdsForBatch = [...new Set(S.images.map(img => img.plateId || 'DefaultPlate'))];
+        const isMultiPlateBatch = uniquePlateIdsForBatch.length > 1;
+    
+        for (const plateId in imagesByPlate) {
+            const plateImages = imagesByPlate[plateId];
+            if (plateImages.length === 0) continue;
+    
+            const thumbMap = createThumbnailMapForPlateMosaic(plateImages);
+            const consensus = generateConsensusScoresForPlate(plateImages);
+            
+            if (thumbMap.size > 0) {
+              let plateSpecificRows = [...new Set(plateImages.map(i => i.row).filter(Boolean))];
+              let plateSpecificCols = [...new Set(plateImages.map(i => i.col).filter(Boolean))];
+              
+              const storedRowOrder = JSON.parse(localStorage.getItem('rowOrder') || '[]');
+              const storedColOrder = JSON.parse(localStorage.getItem('colOrder') || '[]');
+    
+              const plateUniqueRowsSet = new Set(plateSpecificRows);
+              if (storedRowOrder.length === plateUniqueRowsSet.size && storedRowOrder.every(r => plateUniqueRowsSet.has(r))) {
+                  plateSpecificRows = storedRowOrder;
+              } else {
+                  plateSpecificRows.sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true, sensitivity: 'base'}));
+              }
+    
+              const plateUniqueColsSet = new Set(plateSpecificCols);
+              if (storedColOrder.length === plateUniqueColsSet.size && storedColOrder.every(c => plateUniqueColsSet.has(c))) {
+                  plateSpecificCols = storedColOrder;
+              } else {
+                  const extractNumericPrefix = s => (/^([0-9.]+)/.exec(String(s))||[])[1];
+                  plateSpecificCols.sort((a,b)=>{
                     const numA = parseFloat(extractNumericPrefix(a)); const numB = parseFloat(extractNumericPrefix(b));
-                    if (!isNaN(numA) && !isNaN(numB)) return numA - numB; if (!isNaN(numA)) return -1; if (!isNaN(numB)) return 1;
-                    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
-                });
-            }
-
-            const mosaicPngBlob = await generatePlateMosaic(plateSpecificRows, plateSpecificCols, thumbMap, consensus, plateId, isMultiPlateBatch);
-            if (mosaicPngBlob && mosaicPngBlob.size > 100) {
+                    if(!isNaN(numA) && !isNaN(numB)) return numA - numB; if(!isNaN(numA)) return -1; if(!isNaN(numB)) return 1;
+                    return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity: 'base'});
+                  });
+              }
+              
+              const mosaicPngBlob = await generatePlateMosaic(plateSpecificRows, plateSpecificCols, thumbMap, consensus, plateId, isMultiPlateBatch);
+              if (mosaicPngBlob && mosaicPngBlob.size > 100) { 
                 mosaicsFolder.file(`${plateId.replace(/[\/\s]+/g, '_')}_mosaic.png`, mosaicPngBlob);
-            } else if (mosaicPngBlob) {
+              } else if (mosaicPngBlob) {
                 console.warn(`Mosaic for plate ${plateId} was very small or empty, not added to ZIP.`);
+              }
             }
         }
-    }
-
-    const today = new Date();
-    const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD
-    const zipFilename = `StressAssay_ScoringResults_${scorerName || 'scorer'}_${dateString}.zip`;
-
-    try {
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
+      
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0];
+        const zipFilename = `StressAssay_ScoringResults_${scorerName || 'scorer'}_${dateString}.zip`;
+    
+        const zipBlob = await zip.generateAsync({type:'blob'});
         saveAs(zipBlob, zipFilename);
-    } catch (error) { console.error("Error generating ZIP:", error); alert("Failed to generate ZIP."); }
+        
+    } catch (error) {
+        console.error("An unexpected error occurred during the download process:", error);
+        alert("An unexpected error occurred while preparing the download. Please check the developer console (F12) for more details.");
+    }
 };
 
 
