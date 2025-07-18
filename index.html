@@ -1076,41 +1076,49 @@ document.getElementById('downloadScores').onclick = async () => {
         const customHeaders = colNamesInput ? colNamesInput.value.split(',').map(s => s.trim()).filter(Boolean) : [];
         const delimiter = delimiterInput ? delimiterInput.value : '_';
 
-        // **CORRECT PLACEMENT**: Declare maxTotalParts here, in the main scope of the function.
-        let maxTotalParts = 0; 
-        
-        // Determine the maximum number of TOTAL parts from combined row and column labels
+        let maxTotalParts = 0;
         S.images.forEach(img => {
             const rowParts = parseMetadataParts(img.row, delimiter);
             const colParts = parseMetadataParts(img.col, delimiter);
             maxTotalParts = Math.max(maxTotalParts, rowParts.length + colParts.length);
         });
     
-        // Create the dynamic metadata headers
-        const baseHeader = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp', 'ReplicateNumber', 'OriginalRowLabel', 'OriginalColLabel'];
+        // --- COLUMN ORDER CHANGE: Reorganize header assembly ---
+        const leadingHeaders = ['OriginalRowLabel', 'OriginalColLabel'];
         const metadataHeaders = [];
         for (let i = 0; i < maxTotalParts; i++) {
             metadataHeaders.push(customHeaders[i] || `Part_${i + 1}`);
         }
-        const csvHeader = [...baseHeader, ...metadataHeaders];
+        const replicateHeader = ['ReplicateNumber'];
+        const trailingHeaders = ['Scorer', 'PlateID', 'FilePath', 'OriginalFileName', 'AssignedScoreFileName', 'AssignedScore', 'ScoreTimestamp'];
+        
+        const csvHeader = [...leadingHeaders, ...metadataHeaders, ...replicateHeader, ...trailingHeaders];
     
-        // Generate CSV rows with parsed & named metadata
+        // Generate CSV rows with parsed & named metadata in the new order
         const csvRows = S.images.map(img => {
             const scoreData = S.scores[img.name] || {};
-            const baseData = [
-                scorerName, img.plateId, img.filePath, img.originalFileName, img.name,
-                scoreData.score || '', scoreData.timestamp || '', img.replicateNumber,
-                img.row || '', img.col || ''
-            ];
-    
+            
+            // --- COLUMN ORDER CHANGE: Reorganize data assembly ---
+            const leadingData = [img.row || '', img.col || ''];
+            
             const rowParts = parseMetadataParts(img.row, delimiter);
             const colParts = parseMetadataParts(img.col, delimiter);
             const allParts = [...rowParts, ...colParts];
-    
-            // **USAGE**: maxTotalParts is now correctly accessed here.
             const paddedParts = [...allParts, ...Array(maxTotalParts - allParts.length).fill('')];
+
+            const replicateData = [img.replicateNumber];
+            const AssnScoreData = [scoreData.score || ''];
+
+            const trailingData = [
+                scorerName, 
+                img.plateId, 
+                img.filePath, 
+                img.originalFileName, 
+                img.name,
+                scoreData.timestamp || ''
+            ];
     
-            const finalRowArray = [...baseData, ...paddedParts];
+            const finalRowArray = [...leadingData, ...paddedParts, ...AssnScoreData, ...replicateData, ...trailingData];
             
             return finalRowArray.map(field => {
                 const fieldStr = String(field);
